@@ -27,13 +27,13 @@ export default function TetrisField() {
 
   const minoColorList = [
     "white", // 初期状態
-    "#87ceeb", // Iミノ
-    "#ffa500", // Lミノ
-    "#0000cd", // Jミノ
     "#ffff00", // Oミノ
-    "#7cfc00", // Sミノ
-    "#ff4500", // Zミノ
-    // Tミノ
+    "#ff0000", // Zミノ
+    "#800080", // Tミノ
+    "#ffa500", // Lミノ
+    "#00ffff", // Iミノ
+    "#0000ff", // Jミノ
+    "#00ff00", // Sミノ
   ];
 
   return (
