@@ -8,3 +8,7 @@
   border: solid 1px;
   aspect-ratio: 1;
 }
+
+.cell:hover {
+  opacity: 0.5;
+}
