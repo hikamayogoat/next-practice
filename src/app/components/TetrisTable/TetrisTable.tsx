@@ -1,6 +1,8 @@
 import { useState } from "react";
 import tetrisTableStyle from "./tetrisTable.module.css";
 
+import { constVars } from "../../config/config";
+
 export default function TetrisField() {
   const rowCells = new Array<number>(10).fill(0);
   const columnCells = new Array<number>(20).fill(0);
@@ -14,38 +16,44 @@ export default function TetrisField() {
     initArray[i] = new Array(20).fill(initStyle);
   }
 
-  let [tableState, setTableState] = useState(initArray);
+  const [tableState, setTableState] = useState(initArray);
 
   const handleClickCell = (row: number, col: number) => {
-    var cloneTableState = tableState.slice();
-    // 動作確認のためランダムにしているだけ
+    let cloneTableState = tableState.slice();
     cloneTableState[row][col] = {
-      backgroundColor: minoColorList[Math.floor(Math.random() * minoColorList.length)],
+      backgroundColor: `${constVars.minoColorCodes.I}`,
     };
     setTableState(cloneTableState);
   };
 
-  const minoColorList = [
-    "white", // 初期状態
-    "#ffff00", // Oミノ
-    "#ff0000", // Zミノ
-    "#800080", // Tミノ
-    "#ffa500", // Lミノ
-    "#00ffff", // Iミノ
-    "#0000ff", // Jミノ
-    "#00ff00", // Sミノ
-  ];
+  const handleMouseHover = (row: number, col: number) => {
+    let cloneTableState = tableState.slice();
+    cloneTableState[row][col] = {
+      backgroundColor: `${constVars.minoCandidateColorCodes.I}`,
+    };
+    setTableState(cloneTableState);
+  };
+
+  const handleMouseLeave = (row: number, col: number) => {
+    let cloneTableState = tableState.slice();
+    cloneTableState[row][col] = {
+      backgroundColor: constVars.minoColorCodes.WHITE,
+    };
+    setTableState(cloneTableState);
+  };
 
   return (
     <div className={tetrisTableStyle.table}>
-      {columnCells.map((col, colIndex) => (
-        <div key={`${colIndex}`}>
-          {rowCells.map((row, rowIndex) => (
+      {columnCells.map((_, col) => (
+        <div key={`${col}`}>
+          {rowCells.map((_, row) => (
             <div
-              key={`${colIndex}-${rowIndex}`}
+              key={`${col}-${row}`}
               className={tetrisTableStyle.cell}
-              onClick={() => handleClickCell(rowIndex, colIndex)}
-              style={tableState[rowIndex][colIndex]}
+              onMouseEnter={() => handleMouseHover(row, col)}
+              onMouseLeave={() => handleMouseLeave(row, col)} // TODO: 前の状態に戻す？
+              onClick={() => handleClickCell(row, col)}
+              style={tableState[row][col]}
             ></div>
           ))}
         </div>
