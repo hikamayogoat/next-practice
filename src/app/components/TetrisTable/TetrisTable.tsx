@@ -50,8 +50,6 @@ export default function TetrisField() {
             <div
               key={`${col}-${row}`}
               className={tetrisTableStyle.cell}
-              onMouseEnter={() => handleMouseHover(row, col)}
-              onMouseLeave={() => handleMouseLeave(row, col)} // TODO: 前の状態に戻す？
               onClick={() => handleClickCell(row, col)}
               style={tableState[row][col]}
             ></div>
