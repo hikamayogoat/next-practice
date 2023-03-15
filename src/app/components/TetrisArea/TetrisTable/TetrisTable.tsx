@@ -1,7 +1,13 @@
 import { useState } from "react";
 import tetrisTableStyle from "./tetrisTable.module.css";
 
-import { constVars } from "../../config/config";
+import { constVars } from "../../../config/config";
+
+// TetrisFieldコンポーネントについて要約
+// 1. 10x20のテトリスフィールドを作成
+// 2. テトリスフィールドのセルをクリックすると、そのセルの色が変わる
+// 3. テトリスフィールドのセルにマウスカーソルを乗せると、そのセルの色が変わる
+// 4. テトリスフィールドのセルからマウスカーソルを外すと、そのセルの色が変わる
 
 export default function TetrisField() {
   const rowCells = new Array<number>(10).fill(0);
@@ -50,6 +56,8 @@ export default function TetrisField() {
             <div
               key={`${col}-${row}`}
               className={tetrisTableStyle.cell}
+              onMouseEnter={() => handleMouseHover(row, col)}
+              onMouseLeave={() => handleMouseLeave(row, col)}
               onClick={() => handleClickCell(row, col)}
               style={tableState[row][col]}
             ></div>
