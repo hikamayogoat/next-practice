@@ -18,7 +18,7 @@ export function TetrisTable(props: TetrisTableProps) {
 
   const [tmpTableStyle, setTmpTableStyle] = useState(lodash.cloneDeep(props.tableState));
 
-  const onClickCell = (row: number, col: number) => {
+  const onClickCell = (row: number, col: number) => () => {
     let cloneTableState = props.tableState;
     cloneTableState[row][col] = {
       backgroundColor: `${convertNumberToMinoColorCode(props.currentMino)}`,
@@ -26,7 +26,7 @@ export function TetrisTable(props: TetrisTableProps) {
     props.setTableState(cloneTableState);
   };
 
-  const onMouseHover = (row: number, col: number) => {
+  const onMouseHover = (row: number, col: number) => () => {
     let cloneTableStyle = tmpTableStyle.slice();
     cloneTableStyle[row][col] = {
       backgroundColor: `${convertNumberToMinoColorCode(props.currentMino)}`,
@@ -34,7 +34,7 @@ export function TetrisTable(props: TetrisTableProps) {
     setTmpTableStyle(cloneTableStyle);
   };
 
-  const onMouseLeave = (row: number, col: number) => {
+  const onMouseLeave = (row: number, col: number) => () => {
     let cloneTableStyle = tmpTableStyle.slice();
     cloneTableStyle[row][col] = props.tableState[row][col];
     setTmpTableStyle(cloneTableStyle);
@@ -48,9 +48,9 @@ export function TetrisTable(props: TetrisTableProps) {
             <div
               key={`${col}-${row}`}
               className={tetrisTableStyle.cell}
-              onMouseEnter={() => onMouseHover(row, col)}
-              onMouseLeave={() => onMouseLeave(row, col)}
-              onClick={() => onClickCell(row, col)}
+              onMouseEnter={onMouseHover(row, col)}
+              onMouseLeave={onMouseLeave(row, col)}
+              onClick={onClickCell(row, col)}
               style={tmpTableStyle[row][col]}
             ></div>
           ))}
