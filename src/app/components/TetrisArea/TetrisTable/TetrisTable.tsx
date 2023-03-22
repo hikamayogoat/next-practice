@@ -51,7 +51,6 @@ export function TetrisTable(props: TetrisTableProps) {
         backgroundColor: convertNumberToMinoColorCode(props.currentBlock),
         opacity: 0.5,
       };
-      console.log(`${targetX},${targetY} = ${props.tableState[targetX][targetY].backgroundColor}}`);
     });
     setTmpTableStyle(cloneTableStyle);
   };
