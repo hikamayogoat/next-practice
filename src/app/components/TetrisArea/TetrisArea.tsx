@@ -1,9 +1,31 @@
-import { constVars } from "@/app/config/config";
+import tetrisArea from "./tetrisArea.module.css";
 import { useState } from "react";
-import MinoCandidate from "./MinoCandidate/MinoCandidate";
+import { Nexts } from "./Nexts/Nexts";
 import { TetrisTable } from "./TetrisTable/TetrisTable";
+import { Minos } from "../../config/config";
 
 export default function Top() {
+  const [tableState, setTableState] = useState(getTableStateInitArray());
+  const [nexts, setNexts] = useState(getNextsInitArray());
+
+  const tetrisFieldProps = {
+    tableState: tableState,
+    setTableState: setTableState,
+  };
+
+  const nextsProps = {
+    nexts: nexts,
+  };
+
+  return (
+    <div className={tetrisArea.top}>
+      <TetrisTable {...tetrisFieldProps} />
+      <Nexts {...nextsProps} />
+    </div>
+  );
+}
+
+function getTableStateInitArray() {
   const initStyle = {
     backgroundColor: "white",
   };
@@ -13,17 +35,9 @@ export default function Top() {
     initArray[i] = new Array(20).fill(initStyle);
   }
 
-  const [tableState, setTableState] = useState(initArray);
+  return initArray;
+}
 
-  const tetrisFieldProps = {
-    tableState: tableState,
-    setTableState: setTableState,
-  };
-
-  return (
-    <div>
-      <TetrisTable {...tetrisFieldProps} />
-      <MinoCandidate />
-    </div>
-  );
+function getNextsInitArray() {
+  return new Array(5).fill(Minos.I);
 }
