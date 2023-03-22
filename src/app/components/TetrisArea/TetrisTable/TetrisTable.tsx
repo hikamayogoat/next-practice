@@ -20,10 +20,13 @@ export function TetrisTable(props: TetrisTableProps) {
   const [tmpTableStyle, setTmpTableStyle] = useState(lodash.cloneDeep(props.tableState));
 
   const onClickCell = (row: number, col: number) => () => {
+    const relativePositions = getRelativeActivePosition(props.currentBlock);
+    if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
+      return;
+    }
     // memo: cloneする元が同じだと何故か slice() としても参照が同じになってしまう
     const cloneTableState = props.tableState.slice();
     const cloneTmpTableStyle = tmpTableStyle.slice();
-    const relativePositions = getRelativeActivePosition(props.currentBlock);
     relativePositions.forEach((position) => {
       const targetX = position[0] + row;
       const targetY = position[1] + col;
@@ -39,11 +42,11 @@ export function TetrisTable(props: TetrisTableProps) {
   };
 
   const onMouseHover = (row: number, col: number) => () => {
-    const cloneTableStyle = tmpTableStyle.slice();
     const relativePositions = getRelativeActivePosition(props.currentBlock);
     if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
       return;
     }
+    const cloneTableStyle = tmpTableStyle.slice();
     relativePositions.forEach((position) => {
       const targetX = position[0] + row;
       const targetY = position[1] + col;
@@ -56,11 +59,11 @@ export function TetrisTable(props: TetrisTableProps) {
   };
 
   const onMouseLeave = (row: number, col: number) => () => {
-    const cloneTableStyle = tmpTableStyle.slice();
     const relativePositions = getRelativeActivePosition(props.currentBlock);
     if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
       return;
     }
+    const cloneTableStyle = tmpTableStyle.slice();
     relativePositions.forEach((position) => {
       const targetX = position[0] + row;
       const targetY = position[1] + col;
