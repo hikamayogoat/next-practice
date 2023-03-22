@@ -1,51 +1,41 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import tetrisTableStyle from "./tetrisTable.module.css";
 
 import { constVars } from "../../../config/config";
 
-// TetrisFieldコンポーネントについて要約
-// 1. 10x20のテトリスフィールドを作成
-// 2. テトリスフィールドのセルをクリックすると、そのセルの色が変わる
-// 3. テトリスフィールドのセルにマウスカーソルを乗せると、そのセルの色が変わる
-// 4. テトリスフィールドのセルからマウスカーソルを外すと、そのセルの色が変わる
+import lodash from "lodash";
 
-export default function TetrisField() {
+export type TetrisTableProps = {
+  tableState: any[];
+  setTableState: Dispatch<SetStateAction<any[]>>;
+};
+
+export function TetrisTable(props: TetrisTableProps) {
   const rowCells = new Array<number>(10).fill(0);
   const columnCells = new Array<number>(20).fill(0);
 
-  const initStyle = {
-    backgroundColor: "white",
+  const [tmpTableStyle, setTmpTableStyle] = useState(lodash.cloneDeep(props.tableState));
+
+  const onClickCell = (row: number, col: number) => {
+    let cloneTableState = props.tableState;
+    cloneTableState[row][col] = {
+      backgroundColor: `${constVars.minoColorCodes.S}`,
+    };
+    props.setTableState(cloneTableState);
   };
 
-  var initArray = new Array(10).fill(initStyle);
-  for (let i = 0; i < 10; i++) {
-    initArray[i] = new Array(20).fill(initStyle);
-  }
-
-  const [tableState, setTableState] = useState(initArray);
-
-  const handleClickCell = (row: number, col: number) => {
-    let cloneTableState = tableState.slice();
-    cloneTableState[row][col] = {
+  const onMouseHover = (row: number, col: number) => {
+    let cloneTableStyle = tmpTableStyle.slice();
+    cloneTableStyle[row][col] = {
       backgroundColor: `${constVars.minoColorCodes.I}`,
     };
-    setTableState(cloneTableState);
+    setTmpTableStyle(cloneTableStyle);
   };
 
-  const handleMouseHover = (row: number, col: number) => {
-    let cloneTableState = tableState.slice();
-    cloneTableState[row][col] = {
-      backgroundColor: `${constVars.minoCandidateColorCodes.I}`,
-    };
-    setTableState(cloneTableState);
-  };
-
-  const handleMouseLeave = (row: number, col: number) => {
-    let cloneTableState = tableState.slice();
-    cloneTableState[row][col] = {
-      backgroundColor: constVars.minoColorCodes.WHITE,
-    };
-    setTableState(cloneTableState);
+  const onMouseLeave = (row: number, col: number) => {
+    let cloneTableStyle = tmpTableStyle.slice();
+    cloneTableStyle[row][col] = props.tableState[row][col];
+    setTmpTableStyle(cloneTableStyle);
   };
 
   return (
@@ -56,10 +46,10 @@ export default function TetrisField() {
             <div
               key={`${col}-${row}`}
               className={tetrisTableStyle.cell}
-              onMouseEnter={() => handleMouseHover(row, col)}
-              onMouseLeave={() => handleMouseLeave(row, col)}
-              onClick={() => handleClickCell(row, col)}
-              style={tableState[row][col]}
+              onMouseEnter={() => onMouseHover(row, col)}
+              onMouseLeave={() => onMouseLeave(row, col)}
+              onClick={() => onClickCell(row, col)}
+              style={tmpTableStyle[row][col]}
             ></div>
           ))}
         </div>
