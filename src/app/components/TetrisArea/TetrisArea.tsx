@@ -1,26 +1,28 @@
 import tetrisArea from "./tetrisArea.module.css";
 import { useState } from "react";
-import { Nexts } from "./Nexts/Nexts";
+import { MinoCandidate } from "./MinoCandidate/MinoCandidate";
 import { TetrisTable } from "./TetrisTable/TetrisTable";
-import { Minos } from "../../config/config";
+import { Mino } from "../../config/config";
 
 export default function Top() {
   const [tableState, setTableState] = useState(getTableStateInitArray());
-  const [nexts, setNexts] = useState(getNextsInitArray());
+  const [currentMino, setCurrentMino] = useState(Mino.O);
 
   const tetrisFieldProps = {
     tableState: tableState,
     setTableState: setTableState,
+    currentMino: currentMino,
   };
 
-  const nextsProps = {
-    nexts: nexts,
+  const minoCandidateProps = {
+    currentMino: currentMino,
+    setCurrentMino: setCurrentMino,
   };
 
   return (
     <div className={tetrisArea.top}>
       <TetrisTable {...tetrisFieldProps} />
-      <Nexts {...nextsProps} />
+      <MinoCandidate {...minoCandidateProps} />
     </div>
   );
 }
@@ -36,8 +38,4 @@ function getTableStateInitArray() {
   }
 
   return initArray;
-}
-
-function getNextsInitArray() {
-  return new Array(5).fill(Minos.I);
 }

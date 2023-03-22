@@ -12,7 +12,7 @@ export const constVars = {
   },
 };
 
-export enum Minos {
+export enum Mino {
   O,
   Z,
   T,

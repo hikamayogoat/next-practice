@@ -1,13 +1,15 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import tetrisTableStyle from "./tetrisTable.module.css";
 
-import { constVars } from "../../../config/config";
+import { constVars, Mino } from "../../../config/config";
 
 import lodash from "lodash";
+import { convertNumberToMinoColorCode } from "util/converter";
 
 export type TetrisTableProps = {
   tableState: any[];
   setTableState: Dispatch<SetStateAction<any[]>>;
+  currentMino: Mino;
 };
 
 export function TetrisTable(props: TetrisTableProps) {
@@ -19,7 +21,7 @@ export function TetrisTable(props: TetrisTableProps) {
   const onClickCell = (row: number, col: number) => {
     let cloneTableState = props.tableState;
     cloneTableState[row][col] = {
-      backgroundColor: `${constVars.minoColorCodes.S}`,
+      backgroundColor: `${convertNumberToMinoColorCode(props.currentMino)}`,
     };
     props.setTableState(cloneTableState);
   };
@@ -27,7 +29,7 @@ export function TetrisTable(props: TetrisTableProps) {
   const onMouseHover = (row: number, col: number) => {
     let cloneTableStyle = tmpTableStyle.slice();
     cloneTableStyle[row][col] = {
-      backgroundColor: `${constVars.minoColorCodes.I}`,
+      backgroundColor: `${convertNumberToMinoColorCode(props.currentMino)}`,
     };
     setTmpTableStyle(cloneTableStyle);
   };
