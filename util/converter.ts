@@ -2,71 +2,101 @@ import { BlockKind, constVars } from "@/app/config/config";
 
 export function convertNumberToMinoName(block: BlockKind) {
   switch (block) {
-    case 0:
+    case BlockKind.O:
       return "O";
-    case 1:
+    case BlockKind.Z:
       return "Z";
-    case 2:
+    case BlockKind.T:
       return "T";
-    case 3:
+    case BlockKind.L:
       return "L";
-    case 4:
+    case BlockKind.I:
       return "I";
-    case 5:
+    case BlockKind.J:
       return "J";
-    case 6:
+    case BlockKind.S:
       return "S";
-    case 7:
+    case BlockKind.WHITE:
       return "WHITE";
-    case 8:
+    case BlockKind.GRAY:
       return "GRAY";
   }
 }
 
 export function convertNumberToMinoColorCode(block: BlockKind) {
   switch (block) {
-    case 0:
+    case BlockKind.O:
       return constVars.minoColorCodes.O;
-    case 1:
+    case BlockKind.Z:
       return constVars.minoColorCodes.Z;
-    case 2:
+    case BlockKind.T:
       return constVars.minoColorCodes.T;
-    case 3:
+    case BlockKind.L:
       return constVars.minoColorCodes.L;
-    case 4:
+    case BlockKind.I:
       return constVars.minoColorCodes.I;
-    case 5:
+    case BlockKind.J:
       return constVars.minoColorCodes.J;
-    case 6:
+    case BlockKind.S:
       return constVars.minoColorCodes.S;
-    case 7:
+    case BlockKind.WHITE:
       return constVars.minoColorCodes.WHITE;
-    case 8:
+    case BlockKind.GRAY:
       return constVars.minoColorCodes.GRAY;
   }
 }
 
 export function getRelativeActivePosition(block: BlockKind) {
   switch (block) {
-    case 0:
+    case BlockKind.O:
       return [
         [0, 0],
         [-1, 0],
         [0, -1],
         [-1, -1],
       ];
-    case 1:
-      return [[0, 0]];
-    case 2:
-      return [[0, 0]];
-    case 3:
-      return [[0, 0]];
-    case 4:
-      return [[0, 0]];
-    case 5:
-      return [[0, 0]];
-    case 6:
-      return [[0, 0]];
+    case BlockKind.Z:
+      return [
+        [0, 0],
+        [-1, 0],
+        [-1, -1],
+        [-2, -1],
+      ];
+    case BlockKind.T:
+      return [
+        [0, 0],
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+      ];
+    case BlockKind.L:
+      return [
+        [0, 0],
+        [-1, 0],
+        [-1, -1],
+        [-1, -2],
+      ];
+    case BlockKind.I:
+      return [
+        [0, 0],
+        [0, 1],
+        [0, -1],
+        [0, -2],
+      ];
+    case BlockKind.J:
+      return [
+        [0, 0],
+        [-1, 0],
+        [0, -1],
+        [0, -2],
+      ];
+    case BlockKind.S:
+      return [
+        [0, 0],
+        [-1, 0],
+        [0, -1],
+        [1, -1],
+      ];
     default:
       return [[0, 0]];
   }

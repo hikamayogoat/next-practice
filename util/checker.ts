@@ -1,5 +1,4 @@
-import { BlockKind } from "@/app/config/config";
-import { relative } from "path";
+import { BlockKind, constVars } from "@/app/config/config";
 
 export function checkBlockConflict(
   table: any[],
@@ -8,11 +7,14 @@ export function checkBlockConflict(
   relativePositions: number[][]
 ) {
   let isConflict = false;
-  // テーブルの外に座標が出ていたら描画できない
   relativePositions.forEach((relativePosition) => {
     const targetX = relativePosition[0] + row;
     const targetY = relativePosition[1] + col;
     if (targetX < 0 || targetX >= 10 || targetY < 0 || targetY >= 20) {
+      // テーブルの外に座標が出ていたら描画できない
+      isConflict = true;
+    } else if (table[targetX][targetY].backgroundColor != constVars.minoColorCodes.WHITE) {
+      // 既になにかあったら描画できない
       isConflict = true;
     }
   });
