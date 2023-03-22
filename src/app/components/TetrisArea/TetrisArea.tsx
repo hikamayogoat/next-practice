@@ -2,21 +2,21 @@ import tetrisArea from "./tetrisArea.module.css";
 import { useState } from "react";
 import { MinoCandidate } from "./MinoCandidate/MinoCandidate";
 import { TetrisTable } from "./TetrisTable/TetrisTable";
-import { Mino } from "../../config/config";
+import { BlockKind } from "../../config/config";
 
 export default function Top() {
   const [tableState, setTableState] = useState(getTableStateInitArray());
-  const [currentMino, setCurrentMino] = useState(Mino.O);
+  const [currentBlock, setCurrentBlock] = useState(BlockKind.O);
 
   const tetrisFieldProps = {
     tableState: tableState,
     setTableState: setTableState,
-    currentMino: currentMino,
+    currentBlock: currentBlock,
   };
 
   const minoCandidateProps = {
-    currentMino: currentMino,
-    setCurrentMino: setCurrentMino,
+    currentMino: currentBlock,
+    setCurrentMino: setCurrentBlock,
   };
 
   return (

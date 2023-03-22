@@ -1,15 +1,16 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import tetrisTableStyle from "./tetrisTable.module.css";
 
-import { constVars, Mino } from "../../../config/config";
+import { BlockKind } from "../../../config/config";
 
 import lodash from "lodash";
-import { convertNumberToMinoColorCode } from "util/converter";
+import { convertNumberToMinoColorCode, getRelativeActivePosition } from "util/converter";
+import { checkBlockConflict } from "util/checker";
 
 export type TetrisTableProps = {
   tableState: any[];
   setTableState: Dispatch<SetStateAction<any[]>>;
-  currentMino: Mino;
+  currentBlock: BlockKind;
 };
 
 export function TetrisTable(props: TetrisTableProps) {
@@ -20,31 +21,53 @@ export function TetrisTable(props: TetrisTableProps) {
 
   const onClickCell = (row: number, col: number) => () => {
     let cloneTableState = props.tableState;
-    cloneTableState[row][col] = {
-      backgroundColor: `${convertNumberToMinoColorCode(props.currentMino)}`,
-    };
+    const relativePositions = getRelativeActivePosition(props.currentBlock);
+    relativePositions.forEach((position) => {
+      const targetX = position[0] + row;
+      const targetY = position[1] + col;
+      cloneTableState[targetX][targetY] = {
+        backgroundColor: `${convertNumberToMinoColorCode(props.currentBlock)}`,
+      };
+    });
     props.setTableState(cloneTableState);
   };
 
   const onMouseHover = (row: number, col: number) => () => {
     let cloneTableStyle = tmpTableStyle.slice();
-    cloneTableStyle[row][col] = {
-      backgroundColor: `${convertNumberToMinoColorCode(props.currentMino)}`,
-    };
+    const relativePositions = getRelativeActivePosition(props.currentBlock);
+    if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
+      return;
+    }
+    relativePositions.forEach((position) => {
+      const targetX = position[0] + row;
+      const targetY = position[1] + col;
+      cloneTableStyle[targetX][targetY] = {
+        backgroundColor: `${convertNumberToMinoColorCode(props.currentBlock)}`,
+        opacity: 0.5,
+      };
+    });
     setTmpTableStyle(cloneTableStyle);
   };
 
   const onMouseLeave = (row: number, col: number) => () => {
     let cloneTableStyle = tmpTableStyle.slice();
-    cloneTableStyle[row][col] = props.tableState[row][col];
+    const relativePositions = getRelativeActivePosition(props.currentBlock);
+    if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
+      return;
+    }
+    relativePositions.forEach((position) => {
+      const targetX = position[0] + row;
+      const targetY = position[1] + col;
+      cloneTableStyle[targetX][targetY] = props.tableState[targetX][targetY];
+    });
     setTmpTableStyle(cloneTableStyle);
   };
 
   return (
     <div className={tetrisTableStyle.table}>
-      {columnCells.map((_, col) => (
-        <div key={`${col}`}>
-          {rowCells.map((_, row) => (
+      {rowCells.map((_, row) => (
+        <div key={`${row}`}>
+          {columnCells.map((_, col) => (
             <div
               key={`${col}-${row}`}
               className={tetrisTableStyle.cell}

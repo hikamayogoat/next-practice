@@ -12,7 +12,7 @@ export const constVars = {
   },
 };
 
-export enum Mino {
+export enum BlockKind {
   O,
   Z,
   T,
@@ -20,4 +20,6 @@ export enum Mino {
   I,
   J,
   S,
+  WHITE,
+  GRAY,
 }

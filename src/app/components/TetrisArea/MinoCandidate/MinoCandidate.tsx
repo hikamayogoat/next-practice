@@ -1,14 +1,24 @@
-import { Mino } from "@/app/config/config";
+import { BlockKind } from "@/app/config/config";
 import { convertNumberToMinoName } from "util/converter";
 import minoCandidateStyle from "./minoCandidate.module.css";
 
 export type MinoCandidateProps = {
-  currentMino: Mino;
+  currentMino: BlockKind;
   setCurrentMino: (mino: number) => void;
 };
 
 export function MinoCandidate(props: MinoCandidateProps) {
-  const minoCandidateList = [Mino.O, Mino.Z, Mino.T, Mino.L, Mino.I, Mino.J, Mino.S];
+  const minoCandidateList = [
+    BlockKind.O,
+    BlockKind.Z,
+    BlockKind.T,
+    BlockKind.L,
+    BlockKind.I,
+    BlockKind.J,
+    BlockKind.S,
+    BlockKind.WHITE,
+    BlockKind.GRAY,
+  ];
 
   const onCandidateClick = (mino: number) => () => {
     props.setCurrentMino(mino);

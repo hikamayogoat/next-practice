@@ -1,7 +1,7 @@
-import { constVars } from "@/app/config/config";
+import { BlockKind, constVars } from "@/app/config/config";
 
-export function convertNumberToMinoName(minoNumber: number) {
-  switch (minoNumber) {
+export function convertNumberToMinoName(block: BlockKind) {
+  switch (block) {
     case 0:
       return "O";
     case 1:
@@ -16,11 +16,15 @@ export function convertNumberToMinoName(minoNumber: number) {
       return "J";
     case 6:
       return "S";
+    case 7:
+      return "WHITE";
+    case 8:
+      return "GRAY";
   }
 }
 
-export function convertNumberToMinoColorCode(minoNumber: number) {
-  switch (minoNumber) {
+export function convertNumberToMinoColorCode(block: BlockKind) {
+  switch (block) {
     case 0:
       return constVars.minoColorCodes.O;
     case 1:
@@ -35,5 +39,35 @@ export function convertNumberToMinoColorCode(minoNumber: number) {
       return constVars.minoColorCodes.J;
     case 6:
       return constVars.minoColorCodes.S;
+    case 7:
+      return constVars.minoColorCodes.WHITE;
+    case 8:
+      return constVars.minoColorCodes.GRAY;
+  }
+}
+
+export function getRelativeActivePosition(block: BlockKind) {
+  switch (block) {
+    case 0:
+      return [
+        [0, 0],
+        [-1, 0],
+        [0, -1],
+        [-1, -1],
+      ];
+    case 1:
+      return [[0, 0]];
+    case 2:
+      return [[0, 0]];
+    case 3:
+      return [[0, 0]];
+    case 4:
+      return [[0, 0]];
+    case 5:
+      return [[0, 0]];
+    case 6:
+      return [[0, 0]];
+    default:
+      return [[0, 0]];
   }
 }
