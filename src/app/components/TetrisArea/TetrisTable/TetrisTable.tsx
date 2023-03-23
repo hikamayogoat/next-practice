@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import tetrisTableStyle from "./tetrisTable.module.css";
 
 import { BlockKind, constVars } from "../../../config/config";
@@ -6,11 +6,13 @@ import { BlockKind, constVars } from "../../../config/config";
 import lodash from "lodash";
 import { convertNumberToMinoColorCode, getRelativeActivePosition } from "util/converter";
 import { checkBlockConflict } from "util/checker";
+import { ControlMino } from "../TetrisArea";
 
 export type TetrisTableProps = {
   tableState: any[];
   setTableState: Dispatch<SetStateAction<any[]>>;
-  currentBlock: BlockKind;
+  currentMino: ControlMino;
+  setCurrentMino: (newCurrentControlMino: ControlMino) => void;
 };
 
 export function TetrisTable(props: TetrisTableProps) {
@@ -20,7 +22,7 @@ export function TetrisTable(props: TetrisTableProps) {
   const [tmpTableStyle, setTmpTableStyle] = useState(lodash.cloneDeep(props.tableState));
 
   const onClickCell = (row: number, col: number) => () => {
-    const relativePositions = getRelativeActivePosition(props.currentBlock);
+    const relativePositions = getRelativeActivePosition(props.currentMino);
     if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
       return;
     }
@@ -31,7 +33,7 @@ export function TetrisTable(props: TetrisTableProps) {
       const targetX = position[0] + row;
       const targetY = position[1] + col;
       const newCellStyle = {
-        backgroundColor: convertNumberToMinoColorCode(props.currentBlock),
+        backgroundColor: convertNumberToMinoColorCode(props.currentMino.blockKind),
         opacity: 1,
       };
       cloneTableState[targetX][targetY] = newCellStyle;
@@ -41,8 +43,9 @@ export function TetrisTable(props: TetrisTableProps) {
     props.setTableState(cloneTableState);
   };
 
+  // memo: ホバー系の処理をまとめられそう
   const onMouseHover = (row: number, col: number) => () => {
-    const relativePositions = getRelativeActivePosition(props.currentBlock);
+    const relativePositions = getRelativeActivePosition(props.currentMino);
     if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
       return;
     }
@@ -51,7 +54,7 @@ export function TetrisTable(props: TetrisTableProps) {
       const targetX = position[0] + row;
       const targetY = position[1] + col;
       cloneTableStyle[targetX][targetY] = {
-        backgroundColor: convertNumberToMinoColorCode(props.currentBlock),
+        backgroundColor: convertNumberToMinoColorCode(props.currentMino.blockKind),
         opacity: 0.5,
       };
     });
@@ -59,7 +62,7 @@ export function TetrisTable(props: TetrisTableProps) {
   };
 
   const onMouseLeave = (row: number, col: number) => () => {
-    const relativePositions = getRelativeActivePosition(props.currentBlock);
+    const relativePositions = getRelativeActivePosition(props.currentMino);
     if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
       return;
     }
@@ -74,6 +77,25 @@ export function TetrisTable(props: TetrisTableProps) {
     });
     setTmpTableStyle(cloneTableStyle);
   };
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      const cloneControlMino = lodash.cloneDeep(props.currentMino);
+      if (event.key === "z" || event.key === "x") {
+        // 操作中のミノについての state を書き換える
+        const direction = event.key === "z" ? -1 : 1;
+        cloneControlMino.rotation = (cloneControlMino.rotation + direction + 4) % 4;
+        props.setCurrentMino(cloneControlMino);
+        // テーブルを再描画するために state を読み込み直す
+        setTmpTableStyle(lodash.cloneDeep(props.tableState));
+      }
+    },
+    [props.currentMino]
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown, false);
+  }, [props.currentMino, handleKeyDown]);
 
   return (
     <div className={tetrisTableStyle.table}>

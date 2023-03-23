@@ -1,7 +1,8 @@
+import { ControlMino } from "@/app/components/TetrisArea/TetrisArea";
 import { BlockKind, constVars } from "@/app/config/config";
 
-export function convertNumberToMinoName(block: BlockKind) {
-  switch (block) {
+export function convertNumberToMinoName(kind: BlockKind) {
+  switch (kind) {
     case BlockKind.O:
       return "O";
     case BlockKind.Z:
@@ -23,8 +24,8 @@ export function convertNumberToMinoName(block: BlockKind) {
   }
 }
 
-export function convertNumberToMinoColorCode(block: BlockKind) {
-  switch (block) {
+export function convertNumberToMinoColorCode(kind: BlockKind) {
+  switch (kind) {
     case BlockKind.O:
       return constVars.minoColorCodes.O;
     case BlockKind.Z:
@@ -46,57 +47,22 @@ export function convertNumberToMinoColorCode(block: BlockKind) {
   }
 }
 
-export function getRelativeActivePosition(block: BlockKind) {
-  switch (block) {
+export function getRelativeActivePosition(mino: ControlMino) {
+  switch (mino.blockKind) {
     case BlockKind.O:
-      return [
-        [0, 0],
-        [-1, 0],
-        [0, -1],
-        [-1, -1],
-      ];
+      return constVars.minoPosition.O[mino.rotation];
     case BlockKind.Z:
-      return [
-        [0, 0],
-        [-1, 0],
-        [-1, -1],
-        [-2, -1],
-      ];
+      return constVars.minoPosition.Z[mino.rotation];
     case BlockKind.T:
-      return [
-        [0, 0],
-        [-1, 0],
-        [1, 0],
-        [0, -1],
-      ];
+      return constVars.minoPosition.T[mino.rotation];
     case BlockKind.L:
-      return [
-        [0, 0],
-        [-1, 0],
-        [-1, -1],
-        [-1, -2],
-      ];
+      return constVars.minoPosition.L[mino.rotation];
     case BlockKind.I:
-      return [
-        [0, 0],
-        [0, 1],
-        [0, -1],
-        [0, -2],
-      ];
+      return constVars.minoPosition.I[mino.rotation];
     case BlockKind.J:
-      return [
-        [0, 0],
-        [-1, 0],
-        [0, -1],
-        [0, -2],
-      ];
+      return constVars.minoPosition.J[mino.rotation];
     case BlockKind.S:
-      return [
-        [0, 0],
-        [-1, 0],
-        [0, -1],
-        [1, -1],
-      ];
+      return constVars.minoPosition.S[mino.rotation];
     default:
       return [[0, 0]];
   }
