@@ -1,4 +1,5 @@
 export const constVars = {
+  defaultBackgroundColor: "#404040",
   minoColorCodes: {
     WHITE: "white",
     O: "#ffff00",

@@ -43,8 +43,7 @@ export function TetrisTable(props: TetrisTableProps) {
     props.setTableState(cloneTableState);
   };
 
-  // memo: ホバー系の処理をまとめられそう
-  const onMouseHover = (row: number, col: number) => () => {
+  const onMouseMove = (row: number, col: number, action: HoverActionType) => () => {
     const relativePositions = getRelativeActivePosition(props.currentMino);
     if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
       return;
@@ -53,27 +52,17 @@ export function TetrisTable(props: TetrisTableProps) {
     relativePositions.forEach((position) => {
       const targetX = position[0] + row;
       const targetY = position[1] + col;
-      cloneTableStyle[targetX][targetY] = {
-        backgroundColor: convertNumberToMinoColorCode(props.currentMino.blockKind),
-        opacity: 0.5,
-      };
-    });
-    setTmpTableStyle(cloneTableStyle);
-  };
-
-  const onMouseLeave = (row: number, col: number) => () => {
-    const relativePositions = getRelativeActivePosition(props.currentMino);
-    if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
-      return;
-    }
-    const cloneTableStyle = tmpTableStyle.slice();
-    relativePositions.forEach((position) => {
-      const targetX = position[0] + row;
-      const targetY = position[1] + col;
-      cloneTableStyle[targetX][targetY] = {
-        backgroundColor: constVars.minoColorCodes.WHITE,
-        opacity: 1,
-      };
+      if (action == HoverActionType.Enter) {
+        cloneTableStyle[targetX][targetY] = {
+          backgroundColor: convertNumberToMinoColorCode(props.currentMino.blockKind),
+          opacity: 0.5,
+        };
+      } else if (action == HoverActionType.Leave) {
+        cloneTableStyle[targetX][targetY] = {
+          backgroundColor: constVars.defaultBackgroundColor,
+          opacity: 1,
+        };
+      }
     });
     setTmpTableStyle(cloneTableStyle);
   };
@@ -105,8 +94,8 @@ export function TetrisTable(props: TetrisTableProps) {
             <div
               key={`${col}-${row}`}
               className={tetrisTableStyle.cell}
-              onMouseEnter={onMouseHover(row, col)}
-              onMouseLeave={onMouseLeave(row, col)}
+              onMouseEnter={onMouseMove(row, col, HoverActionType.Enter)}
+              onMouseLeave={onMouseMove(row, col, HoverActionType.Leave)}
               onClick={onClickCell(row, col)}
               style={tmpTableStyle[row][col]}
             ></div>
@@ -115,4 +104,9 @@ export function TetrisTable(props: TetrisTableProps) {
       ))}
     </div>
   );
+}
+
+enum HoverActionType {
+  Enter,
+  Leave,
 }

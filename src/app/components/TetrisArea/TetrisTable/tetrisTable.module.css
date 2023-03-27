@@ -5,6 +5,7 @@
 }
 
 .cell {
-  border: solid 1px;
+  border: solid .25px;
+  border-color: aliceblue;
   aspect-ratio: 1;
 }

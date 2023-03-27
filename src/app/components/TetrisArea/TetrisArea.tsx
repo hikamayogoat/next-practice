@@ -1,13 +1,13 @@
 import tetrisArea from "./tetrisArea.module.css";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { MinoCandidate } from "./MinoCandidate/MinoCandidate";
 import { TetrisTable } from "./TetrisTable/TetrisTable";
-import { BlockKind } from "../../config/config";
-import lodash from "lodash";
+import { BlockKind, constVars } from "../../config/config";
 
 export default function Top() {
   const [tableState, setTableState] = useState(getTableStateInitArray());
   const [currentMino, setCurrentMino] = useState({
+    // TODO: 何も選択されていない状態を用意する
     blockKind: BlockKind.O,
     rotation: 0,
   });
@@ -34,7 +34,7 @@ export default function Top() {
 
 function getTableStateInitArray() {
   const initStyle = {
-    backgroundColor: "white",
+    backgroundColor: constVars.defaultBackgroundColor,
   };
 
   var initArray = new Array(10).fill(initStyle);

@@ -13,7 +13,7 @@ export function checkBlockConflict(
     if (targetX < 0 || targetX >= 10 || targetY < 0 || targetY >= 20) {
       // テーブルの外に座標が出ていたら描画できない
       isConflict = true;
-    } else if (table[targetX][targetY].backgroundColor != constVars.minoColorCodes.WHITE) {
+    } else if (table[targetX][targetY].backgroundColor != constVars.defaultBackgroundColor) {
       // 既になにかあったら描画できない
       isConflict = true;
     }
