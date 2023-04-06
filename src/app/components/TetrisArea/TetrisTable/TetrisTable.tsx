@@ -27,7 +27,6 @@ export function TetrisTable(props: TetrisTableProps) {
       return;
     }
     const cloneTableState = props.tableState.slice();
-    const cloneTmpTableStyle = tmpTableStyle.slice();
     relativePositions.forEach((position) => {
       const targetX = position[0] + row;
       const targetY = position[1] + col;
@@ -36,9 +35,7 @@ export function TetrisTable(props: TetrisTableProps) {
         opacity: 1,
       };
       cloneTableState[targetX][targetY] = newCellStyle;
-      cloneTmpTableStyle[targetX][targetY] = newCellStyle;
     });
-    setTmpTableStyle(cloneTmpTableStyle);
     props.setTableState(cloneTableState);
   };
 
@@ -75,14 +72,16 @@ export function TetrisTable(props: TetrisTableProps) {
         const direction = event.key === "z" ? -1 : 1;
         cloneControlMino.rotation = (cloneControlMino.rotation + direction + 4) % 4;
         props.setCurrentMino(cloneControlMino);
-        // テーブルを再描画するために state を読み込み直す
+        // テーブルを再描画するために 親コンポーネントの state を読み込み直す
         setTmpTableStyle(lodash.cloneDeep(props.tableState));
       }
     },
     [props.currentMino]
   );
+
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown, false);
+    console.log("useEffect called");
   }, [props.currentMino, handleKeyDown]);
 
   return (
