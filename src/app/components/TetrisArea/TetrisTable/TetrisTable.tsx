@@ -82,6 +82,9 @@ export function TetrisTable(props: TetrisTableProps) {
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown, false);
     console.log("useEffect called");
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown, false);
+    };
   }, [props.currentMino, handleKeyDown]);
 
   return (
