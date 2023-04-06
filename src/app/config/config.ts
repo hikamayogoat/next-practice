@@ -1,5 +1,5 @@
 export const constVars = {
-  defaultBackgroundColor: "#404040",
+  defaultBackgroundColor: "#909090",
   minoColorCodes: {
     WHITE: "white",
     O: "#ffff00",
@@ -9,7 +9,7 @@ export const constVars = {
     I: "#00ffff",
     J: "#0000ff",
     S: "#00ff00",
-    GRAY: "#808080",
+    GRAY: "#202020",
   },
   minoPosition: {
     O: [

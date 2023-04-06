@@ -26,7 +26,6 @@ export function TetrisTable(props: TetrisTableProps) {
     if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
       return;
     }
-    // memo: cloneする元が同じだと何故か slice() としても参照が同じになってしまう
     const cloneTableState = props.tableState.slice();
     const cloneTmpTableStyle = tmpTableStyle.slice();
     relativePositions.forEach((position) => {
@@ -55,7 +54,7 @@ export function TetrisTable(props: TetrisTableProps) {
       if (action == HoverActionType.Enter) {
         cloneTableStyle[targetX][targetY] = {
           backgroundColor: convertNumberToMinoColorCode(props.currentMino.blockKind),
-          opacity: 0.5,
+          opacity: 0.7,
         };
       } else if (action == HoverActionType.Leave) {
         cloneTableStyle[targetX][targetY] = {
@@ -67,6 +66,7 @@ export function TetrisTable(props: TetrisTableProps) {
     setTmpTableStyle(cloneTableStyle);
   };
 
+  // キーが押された時のコールバック
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       const cloneControlMino = lodash.cloneDeep(props.currentMino);
@@ -81,27 +81,29 @@ export function TetrisTable(props: TetrisTableProps) {
     },
     [props.currentMino]
   );
-
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown, false);
   }, [props.currentMino, handleKeyDown]);
 
   return (
-    <div className={tetrisTableStyle.table}>
-      {rowCells.map((_, row) => (
-        <div key={`${row}`}>
-          {columnCells.map((_, col) => (
-            <div
-              key={`${col}-${row}`}
-              className={tetrisTableStyle.cell}
-              onMouseEnter={onMouseMove(row, col, HoverActionType.Enter)}
-              onMouseLeave={onMouseMove(row, col, HoverActionType.Leave)}
-              onClick={onClickCell(row, col)}
-              style={tmpTableStyle[row][col]}
-            ></div>
-          ))}
-        </div>
-      ))}
+    <div>
+      <div className={tetrisTableStyle.table}>
+        {rowCells.map((_, row) => (
+          <div key={`${row}`}>
+            {columnCells.map((_, col) => (
+              <div
+                key={`${col}-${row}`}
+                className={tetrisTableStyle.cell}
+                onMouseEnter={onMouseMove(row, col, HoverActionType.Enter)}
+                onMouseLeave={onMouseMove(row, col, HoverActionType.Leave)}
+                onClick={onClickCell(row, col)}
+                style={tmpTableStyle[row][col]}
+              ></div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <p>Z: 左回転, X: 右回転</p>
     </div>
   );
 }
