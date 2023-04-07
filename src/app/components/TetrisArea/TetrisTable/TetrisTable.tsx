@@ -23,7 +23,6 @@ export function TetrisTable(props: TetrisTableProps) {
 
   const initActivePosition: Array<number | undefined> = [undefined, undefined];
   const [activePositionState, setActivePositionState] = useState(initActivePosition);
-  console.log(`Table のレンダリング時、${activePositionState}がアクティブ`);
 
   const onClickCell = (row: number, col: number) => () => {
     const relativePositions = getRelativeActivePosition(props.currentMino);
@@ -90,13 +89,11 @@ export function TetrisTable(props: TetrisTableProps) {
         if (row != undefined && col != undefined) {
           updateTmpTableStyle(row, col, props.currentMino, constVars.defaultBackgroundColor, 1);
         }
-        console.log(`rotate:${props.currentMino.rotation}}`);
         // 操作中のミノについての state を書き換える
         const cloneControlMino = lodash.cloneDeep(props.currentMino);
         const direction = event.key === "z" ? -1 : 1;
         cloneControlMino.rotation = (cloneControlMino.rotation + direction + 4) % 4;
         props.setCurrentMino(cloneControlMino);
-        console.log(`rotate:${props.currentMino.rotation}}`);
         // テーブルに追記する
         if (row != undefined && col != undefined) {
           updateTmpTableStyle(
