@@ -1,5 +1,6 @@
 import { BlockKind } from "@/app/config/config";
 import lodash from "lodash";
+import { memo, useCallback } from "react";
 import { convertNumberToMinoName } from "util/converter";
 import { ControlMino } from "../TetrisArea";
 import minoCandidateStyle from "./minoCandidate.module.css";

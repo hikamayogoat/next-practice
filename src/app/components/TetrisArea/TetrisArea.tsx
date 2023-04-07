@@ -1,5 +1,5 @@
 import tetrisArea from "./tetrisArea.module.css";
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { MinoCandidate } from "./MinoCandidate/MinoCandidate";
 import { TetrisTable } from "./TetrisTable/TetrisTable";
 import { BlockKind, constVars } from "../../config/config";

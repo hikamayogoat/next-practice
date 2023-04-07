@@ -3,7 +3,7 @@ import tetrisTableStyle from "./tetrisTable.module.css";
 
 import { BlockKind, constVars } from "../../../config/config";
 
-import lodash from "lodash";
+import lodash, { clone } from "lodash";
 import { convertNumberToMinoColorCode, getRelativeActivePosition } from "util/converter";
 import { checkBlockConflict } from "util/checker";
 import { ControlMino } from "../TetrisArea";
@@ -21,6 +21,10 @@ export function TetrisTable(props: TetrisTableProps) {
 
   const [tmpTableStyle, setTmpTableStyle] = useState(lodash.cloneDeep(props.tableState));
 
+  const initActivePosition: Array<number | undefined> = [undefined, undefined];
+  const [activePositionState, setActivePositionState] = useState(initActivePosition);
+  console.log(`Table のレンダリング時、${activePositionState}がアクティブ`);
+
   const onClickCell = (row: number, col: number) => () => {
     const relativePositions = getRelativeActivePosition(props.currentMino);
     if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
@@ -36,52 +40,80 @@ export function TetrisTable(props: TetrisTableProps) {
       };
       cloneTableState[targetX][targetY] = newCellStyle;
     });
-    props.setTableState(cloneTableState);
+    props.setTableState(lodash.cloneDeep(cloneTableState));
+    setTmpTableStyle(lodash.cloneDeep(cloneTableState));
   };
 
-  const onMouseMove = (row: number, col: number, action: HoverActionType) => () => {
-    const relativePositions = getRelativeActivePosition(props.currentMino);
+  const onMouseEnter = (row: number, col: number) => () => {
+    updateTmpTableStyle(
+      row,
+      col,
+      props.currentMino,
+      convertNumberToMinoColorCode(props.currentMino.blockKind),
+      0.6
+    );
+    setActivePositionState([row, col]);
+  };
+  const onMouseLeave = (row: number, col: number) => () => {
+    updateTmpTableStyle(row, col, props.currentMino, constVars.defaultBackgroundColor, 1);
+    setActivePositionState(lodash.cloneDeep(initActivePosition));
+  };
+  const updateTmpTableStyle = (
+    row: number,
+    col: number,
+    currentMino: ControlMino,
+    color: string,
+    opacity: number
+  ) => {
+    const cloneTmpTableStyle = tmpTableStyle.slice();
+    const relativePositions = getRelativeActivePosition(currentMino);
     if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
       return;
     }
-    const cloneTableStyle = tmpTableStyle.slice();
     relativePositions.forEach((position) => {
       const targetX = position[0] + row;
       const targetY = position[1] + col;
-      if (action == HoverActionType.Enter) {
-        cloneTableStyle[targetX][targetY] = {
-          backgroundColor: convertNumberToMinoColorCode(props.currentMino.blockKind),
-          opacity: 0.7,
-        };
-      } else if (action == HoverActionType.Leave) {
-        cloneTableStyle[targetX][targetY] = {
-          backgroundColor: constVars.defaultBackgroundColor,
-          opacity: 1,
-        };
-      }
+      cloneTmpTableStyle[targetX][targetY] = {
+        backgroundColor: color,
+        opacity: opacity,
+      };
     });
-    setTmpTableStyle(cloneTableStyle);
+    setTmpTableStyle(cloneTmpTableStyle);
   };
 
   // キーが押された時のコールバック
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      const cloneControlMino = lodash.cloneDeep(props.currentMino);
       if (event.key === "z" || event.key === "x") {
+        const [row, col] = [...activePositionState];
+        // テーブルを掃除する
+        if (row != undefined && col != undefined) {
+          updateTmpTableStyle(row, col, props.currentMino, constVars.defaultBackgroundColor, 1);
+        }
+        console.log(`rotate:${props.currentMino.rotation}}`);
         // 操作中のミノについての state を書き換える
+        const cloneControlMino = lodash.cloneDeep(props.currentMino);
         const direction = event.key === "z" ? -1 : 1;
         cloneControlMino.rotation = (cloneControlMino.rotation + direction + 4) % 4;
         props.setCurrentMino(cloneControlMino);
-        // テーブルを再描画するために 親コンポーネントの state を読み込み直す
-        setTmpTableStyle(lodash.cloneDeep(props.tableState));
+        console.log(`rotate:${props.currentMino.rotation}}`);
+        // テーブルに追記する
+        if (row != undefined && col != undefined) {
+          updateTmpTableStyle(
+            row,
+            col,
+            cloneControlMino,
+            convertNumberToMinoColorCode(cloneControlMino.blockKind),
+            0.6
+          );
+        }
       }
     },
-    [props.currentMino]
+    [props.currentMino, activePositionState]
   );
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown, false);
-    console.log("useEffect called");
     return () => {
       document.removeEventListener("keydown", handleKeyDown, false);
     };
@@ -96,8 +128,8 @@ export function TetrisTable(props: TetrisTableProps) {
               <div
                 key={`${col}-${row}`}
                 className={tetrisTableStyle.cell}
-                onMouseEnter={onMouseMove(row, col, HoverActionType.Enter)}
-                onMouseLeave={onMouseMove(row, col, HoverActionType.Leave)}
+                onMouseEnter={onMouseEnter(row, col)}
+                onMouseLeave={onMouseLeave(row, col)}
                 onClick={onClickCell(row, col)}
                 style={tmpTableStyle[row][col]}
               ></div>
