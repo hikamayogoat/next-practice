@@ -1,0 +1,11 @@
+.table {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(25px, 1fr));
+  grid-auto-rows: 1fr;
+}
+
+.cell {
+  border: solid .25px;
+  border-color: aliceblue;
+  aspect-ratio: 1;
+}
