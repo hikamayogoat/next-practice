@@ -1,4 +1,5 @@
-export const constVars = {
+export const config = {
+  historyLength: 5,
   defaultBackgroundColor: "#909090",
   minoColorCodes: {
     WHITE: "white",

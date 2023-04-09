@@ -2,10 +2,10 @@ import tetrisArea from "./tetrisArea.module.css";
 import { memo, useCallback, useState } from "react";
 import { MinoCandidateMemo } from "./MinoCandidate/MinoCandidate";
 import { TetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
-import { BlockKind, constVars } from "../../config/config";
+import { BlockKind, config } from "../../config/config";
 
 export default function Top() {
-  const [tableState, setTableState] = useState<any[][]>(getTableStateInitArray());
+  const [tableHistoryState, setTableHistoryState] = useState<any[][][]>(getTableStateInitArray());
   const [currentMino, setCurrentMino] = useState({
     // TODO: 何も選択されていない状態を用意する
     blockKind: BlockKind.O,
@@ -13,8 +13,8 @@ export default function Top() {
   });
 
   const tetrisFieldProps = {
-    masterTableState: tableState,
-    setMasterTableState: setTableState,
+    tableHistoryState: tableHistoryState,
+    setTableHistoryState: setTableHistoryState,
     currentMino: currentMino,
     setCurrentMino: setCurrentMino,
   };
@@ -33,15 +33,18 @@ export default function Top() {
 }
 
 function getTableStateInitArray() {
-  const initStyle = {
-    backgroundColor: constVars.defaultBackgroundColor,
-  };
-
-  var initArray = new Array(10).fill(initStyle);
-  for (let i = 0; i < 10; i++) {
-    initArray[i] = new Array(20).fill(initStyle);
+  // TODO: 同じ参照を持つオブジェクトで初期化されないようにしてるけど、もっといい方法ありそ
+  const initArray = new Array(config.historyLength).fill(0);
+  for (let n = 0; n < config.historyLength; n++) {
+    initArray[n] = new Array(10).fill(0);
   }
-
+  for (let n = 0; n < config.historyLength; n++) {
+    for (let x = 0; x < 10; x++) {
+      initArray[n][x] = new Array(20).fill({
+        backgroundColor: config.defaultBackgroundColor,
+      });
+    }
+  }
   return initArray;
 }
 

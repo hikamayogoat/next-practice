@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useLayoutEffect, useState } from "react";
 import tetrisTableStyle from "./tetrisTable.module.css";
 
-import { BlockKind, constVars } from "../../../config/config";
+import { BlockKind, config } from "../../../config/config";
 
 import lodash, { clone, update } from "lodash";
 import { convertNumberToMinoColorCode, getRelativeActivePosition } from "util/converter";
@@ -9,8 +9,8 @@ import { checkBlockConflict } from "util/checker";
 import { ControlMino } from "../TetrisArea";
 
 export type TetrisTableProps = {
-  masterTableState: any[][];
-  setMasterTableState: Dispatch<SetStateAction<any[]>>;
+  tableHistoryState: any[][][];
+  setTableHistoryState: Dispatch<SetStateAction<any[][][]>>;
   currentMino: ControlMino;
   setCurrentMino: (newCurrentControlMino: ControlMino) => void;
 };
@@ -24,7 +24,10 @@ export function TetrisTable(props: TetrisTableProps) {
   const rowCells = new Array<number>(10).fill(0);
   const columnCells = new Array<number>(20).fill(0);
 
-  const [tableStyle, setTableStyle] = useState(lodash.cloneDeep(props.masterTableState));
+  const latestIndex = config.historyLength - 1;
+  const [tableStyle, setTableStyle] = useState(
+    structuredClone(props.tableHistoryState[latestIndex])
+  );
 
   type Position = {
     row: number | undefined;
@@ -38,14 +41,15 @@ export function TetrisTable(props: TetrisTableProps) {
   const [leavePositionState, setLeavePositionState] = useState(initPosition);
 
   const onClickCell = (row: number, col: number) => () => {
+    // memo: 半透明になってるところを1にしたやつ、で定義してもいいかも？
     const relativePositions = getRelativeActivePosition(props.currentMino);
     if (
       props.currentMino.blockKind != BlockKind.ERASER &&
-      checkBlockConflict(props.masterTableState, row, col, relativePositions)
+      checkBlockConflict(props.tableHistoryState[latestIndex], row, col, relativePositions)
     ) {
       return;
     }
-    const cloneTableState = props.masterTableState.slice();
+    const cloneTableStyle = props.tableHistoryState[latestIndex].slice();
     relativePositions.forEach((position) => {
       const targetX = position[0] + row;
       const targetY = position[1] + col;
@@ -53,11 +57,16 @@ export function TetrisTable(props: TetrisTableProps) {
         backgroundColor: convertNumberToMinoColorCode(props.currentMino.blockKind),
         opacity: 1,
       };
-      cloneTableState[targetX][targetY] = newCellStyle;
+      cloneTableStyle[targetX][targetY] = newCellStyle;
     });
-    props.setMasterTableState(cloneTableState);
+    const newHistory = [];
+    for (let i = 1; i < config.historyLength; i++) {
+      newHistory.push(props.tableHistoryState[i]);
+    }
+    newHistory.push(cloneTableStyle);
+    props.setTableHistoryState(newHistory);
     // マスター情報と同じもので表示される盤面を更新する
-    setTableStyle(lodash.cloneDeep(cloneTableState));
+    setTableStyle(structuredClone(cloneTableStyle));
   };
 
   // マウスがセルの上に乗ったときの処理
@@ -110,7 +119,7 @@ export function TetrisTable(props: TetrisTableProps) {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "z" || event.key === "x") {
-        const cloneControlMino = lodash.cloneDeep(props.currentMino);
+        const cloneControlMino = structuredClone(props.currentMino);
         const direction = event.key === "z" ? -1 : 1;
         cloneControlMino.rotation = (cloneControlMino.rotation + direction + 4) % 4;
         props.setCurrentMino(cloneControlMino);
@@ -129,14 +138,14 @@ export function TetrisTable(props: TetrisTableProps) {
   function updateTableStyle(row: number, col: number, action: UpdateCellType) {
     setTableStyle((prev) => {
       const relativePositions = getRelativeActivePosition(props.currentMino);
-      const cloneTmpTableStyle = lodash.cloneDeep(prev);
+      const cloneTableStyle = structuredClone(prev);
       if (
         props.currentMino.blockKind != BlockKind.ERASER &&
-        checkBlockConflict(props.masterTableState, row, col, relativePositions)
+        checkBlockConflict(props.tableHistoryState[latestIndex], row, col, relativePositions)
       ) {
         return prev;
       } else {
-        const opacity = action == UpdateCellType.PUT ? 0.5 : 1;
+        const opacity = action == UpdateCellType.PUT ? 0.6 : 1;
 
         relativePositions.forEach((position) => {
           const targetX = position[0] + row;
@@ -144,14 +153,14 @@ export function TetrisTable(props: TetrisTableProps) {
           const color =
             action == UpdateCellType.PUT
               ? convertNumberToMinoColorCode(props.currentMino.blockKind)
-              : props.masterTableState[targetX][targetY].backgroundColor;
-          cloneTmpTableStyle[targetX][targetY] = {
+              : props.tableHistoryState[latestIndex][targetX][targetY].backgroundColor;
+          cloneTableStyle[targetX][targetY] = {
             backgroundColor: color,
             opacity: opacity,
           };
         });
+        return cloneTableStyle;
       }
-      return cloneTmpTableStyle;
     });
   }
 

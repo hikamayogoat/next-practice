@@ -1,5 +1,5 @@
 import { ControlMino } from "@/app/components/TetrisArea/TetrisArea";
-import { BlockKind, constVars } from "@/app/config/config";
+import { BlockKind, config } from "@/app/config/config";
 
 export function convertNumberToMinoName(kind: BlockKind) {
   switch (kind) {
@@ -27,42 +27,42 @@ export function convertNumberToMinoName(kind: BlockKind) {
 export function convertNumberToMinoColorCode(kind: BlockKind) {
   switch (kind) {
     case BlockKind.O:
-      return constVars.minoColorCodes.O;
+      return config.minoColorCodes.O;
     case BlockKind.Z:
-      return constVars.minoColorCodes.Z;
+      return config.minoColorCodes.Z;
     case BlockKind.T:
-      return constVars.minoColorCodes.T;
+      return config.minoColorCodes.T;
     case BlockKind.L:
-      return constVars.minoColorCodes.L;
+      return config.minoColorCodes.L;
     case BlockKind.I:
-      return constVars.minoColorCodes.I;
+      return config.minoColorCodes.I;
     case BlockKind.J:
-      return constVars.minoColorCodes.J;
+      return config.minoColorCodes.J;
     case BlockKind.S:
-      return constVars.minoColorCodes.S;
+      return config.minoColorCodes.S;
     case BlockKind.GRAY:
-      return constVars.minoColorCodes.GRAY;
+      return config.minoColorCodes.GRAY;
     case BlockKind.ERASER:
-      return constVars.defaultBackgroundColor;
+      return config.defaultBackgroundColor;
   }
 }
 
 export function getRelativeActivePosition(mino: ControlMino) {
   switch (mino.blockKind) {
     case BlockKind.O:
-      return constVars.minoPosition.O[mino.rotation];
+      return config.minoPosition.O[mino.rotation];
     case BlockKind.Z:
-      return constVars.minoPosition.Z[mino.rotation];
+      return config.minoPosition.Z[mino.rotation];
     case BlockKind.T:
-      return constVars.minoPosition.T[mino.rotation];
+      return config.minoPosition.T[mino.rotation];
     case BlockKind.L:
-      return constVars.minoPosition.L[mino.rotation];
+      return config.minoPosition.L[mino.rotation];
     case BlockKind.I:
-      return constVars.minoPosition.I[mino.rotation];
+      return config.minoPosition.I[mino.rotation];
     case BlockKind.J:
-      return constVars.minoPosition.J[mino.rotation];
+      return config.minoPosition.J[mino.rotation];
     case BlockKind.S:
-      return constVars.minoPosition.S[mino.rotation];
+      return config.minoPosition.S[mino.rotation];
     default:
       return [[0, 0]];
   }
