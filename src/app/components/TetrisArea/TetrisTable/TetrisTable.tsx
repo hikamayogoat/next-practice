@@ -95,6 +95,11 @@ export function TetrisTable(props: TetrisTableProps) {
         leavePositionState.col == columnCells.length - 1)
     ) {
       updateTableStyle(leavePositionState.row, leavePositionState.col, UpdateCellType.REMOVE);
+      // 戻しておかないと、次の回転処理のときに最後の座標に描画される
+      setEnterPositionState({
+        row: undefined,
+        col: undefined,
+      });
     }
   }, [leavePositionState]);
 
