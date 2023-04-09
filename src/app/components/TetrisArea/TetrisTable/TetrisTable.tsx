@@ -60,11 +60,6 @@ export function TetrisTable(props: TetrisTableProps) {
   // マウスホバーに関するハンドラ
   const onMouseEnter = (row: number, col: number) => () => {
     console.log("enter");
-    // setLeaveState({
-    //   row: row,
-    //   col: col,
-    //   actionType: ActionType.REMOVE,
-    // });
     setEnterPositionState({
       row: row,
       col: col,
@@ -100,7 +95,7 @@ export function TetrisTable(props: TetrisTableProps) {
   }, [props.currentMino, handleKeyDown]);
 
   // 再描画処理
-  function updateTmpTable(row: number, col: number, action: UpdateCellType) {
+  function updateTableStyle(row: number, col: number, action: UpdateCellType) {
     setTableStyle((prev) => {
       const relativePositions = getRelativeActivePosition(props.currentMino);
       const cloneTmpTableStyle = lodash.cloneDeep(prev);
@@ -110,6 +105,7 @@ export function TetrisTable(props: TetrisTableProps) {
           action == UpdateCellType.PUT
             ? convertNumberToMinoColorCode(props.currentMino.blockKind)
             : constVars.defaultBackgroundColor;
+
         relativePositions.forEach((position) => {
           const targetX = position[0] + row;
           const targetY = position[1] + col;
@@ -126,14 +122,27 @@ export function TetrisTable(props: TetrisTableProps) {
   useEffect(() => {
     console.log(`enter useeffect: ${enterPositionState.row}, ${enterPositionState.col}`);
     if (enterPositionState.row != undefined && enterPositionState.col != undefined) {
-      updateTmpTable(enterPositionState.row, enterPositionState.col, UpdateCellType.PUT);
+      updateTableStyle(enterPositionState.row, enterPositionState.col, UpdateCellType.PUT);
     }
+    return () => {
+      console.log(`unmount useeffect: ${enterPositionState.row}, ${enterPositionState.col}`);
+      if (enterPositionState.row != undefined && enterPositionState.col != undefined) {
+        updateTableStyle(enterPositionState.row, enterPositionState.col, UpdateCellType.REMOVE);
+      }
+    };
   }, [enterPositionState]);
 
   useEffect(() => {
     console.log(`leave useeffect: ${leavePositionState.row}, ${leavePositionState.col}`);
-    if (leavePositionState.row != undefined && leavePositionState.col != undefined) {
-      updateTmpTable(leavePositionState.row, leavePositionState.col, UpdateCellType.REMOVE);
+    if (
+      leavePositionState.row != undefined &&
+      leavePositionState.col != undefined &&
+      (leavePositionState.row == 0 ||
+        leavePositionState.col == 0 ||
+        leavePositionState.row == rowCells.length - 1 ||
+        leavePositionState.col == columnCells.length - 1)
+    ) {
+      updateTableStyle(leavePositionState.row, leavePositionState.col, UpdateCellType.REMOVE);
     }
   }, [leavePositionState]);
 
