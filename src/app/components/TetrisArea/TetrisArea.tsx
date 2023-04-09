@@ -21,7 +21,7 @@ export default function Top() {
 
   const minoCandidateProps = {
     currentMino: currentMino,
-    setCurrentMino: setCurrentMino,
+    setCurrentMino: useCallback(setCurrentMino, []),
   };
 
   return (

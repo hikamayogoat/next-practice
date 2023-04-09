@@ -2,16 +2,15 @@ import { BlockKind } from "@/app/config/config";
 import lodash from "lodash";
 import { memo, useCallback } from "react";
 import { convertNumberToMinoName } from "util/converter";
-import { ControlMino } from "../TetrisArea";
+import { ControlMino as MinoStatus } from "../TetrisArea";
 import minoCandidateStyle from "./minoCandidate.module.css";
 
-export type MinoCandidateProps = {
-  currentMino: ControlMino;
-  setCurrentMino: (newCurrentControlMino: ControlMino) => void;
+export type ControllerProps = {
+  currentMino: MinoStatus;
+  setCurrentMino: (newCurrentControlMino: MinoStatus) => void;
 };
 
-function MinoCandidate(props: MinoCandidateProps) {
-  console.log("rendered");
+function Controller(props: ControllerProps) {
   const minoCandidateList = [
     BlockKind.O,
     BlockKind.Z,
@@ -25,7 +24,7 @@ function MinoCandidate(props: MinoCandidateProps) {
   ];
 
   const onCandidateClick = (mino: BlockKind) => () => {
-    const newCurrentControlMino: ControlMino = {
+    const newCurrentControlMino: MinoStatus = {
       blockKind: mino,
       rotation: 0,
     };
@@ -34,7 +33,7 @@ function MinoCandidate(props: MinoCandidateProps) {
 
   const onRotateClick = (direction: number) => () => {
     const cloneControlMino = lodash.cloneDeep(props.currentMino);
-    const newCurrentControlMino: ControlMino = {
+    const newCurrentControlMino: MinoStatus = {
       blockKind: cloneControlMino.blockKind,
       rotation: (cloneControlMino.rotation + direction + 4) % 4,
     };
@@ -70,4 +69,4 @@ function MinoCandidate(props: MinoCandidateProps) {
   );
 }
 
-export const MinoCandidateMemo = memo(MinoCandidate);
+export const MinoCandidateMemo = memo(Controller);
