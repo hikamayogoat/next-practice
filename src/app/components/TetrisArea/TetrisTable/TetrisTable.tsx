@@ -53,28 +53,55 @@ export function TetrisTable(props: TetrisTableProps) {
       cloneTableState[targetX][targetY] = newCellStyle;
     });
     props.setMasterTableState(cloneTableState);
+    // マスター情報と同じもので表示される盤面を更新する
     setTableStyle(lodash.cloneDeep(cloneTableState));
   };
 
-  // マウスホバーに関するハンドラ
+  // マウスがセルの上に乗ったときの処理
   const onMouseEnter = (row: number, col: number) => () => {
     setEnterPositionState({
       row: row,
       col: col,
     });
   };
+  useEffect(() => {
+    if (enterPositionState.row != undefined && enterPositionState.col != undefined) {
+      updateTableStyle(enterPositionState.row, enterPositionState.col, UpdateCellType.PUT);
+    }
+    return () => {
+      // 次の描画を始める前に、前の描画で変更したセルのスタイルを元に戻す
+      if (enterPositionState.row != undefined && enterPositionState.col != undefined) {
+        updateTableStyle(enterPositionState.row, enterPositionState.col, UpdateCellType.REMOVE);
+      }
+    };
+  }, [enterPositionState, props.currentMino]);
+
+  // マウスがセルから離れたときの処理
   const onMouseLeave = (row: number, col: number) => () => {
     setLeavePositionState({
       row: row,
       col: col,
     });
   };
+  useEffect(() => {
+    if (
+      leavePositionState.row != undefined &&
+      leavePositionState.col != undefined &&
+      // 基本的にはマウスが乗ったときのuseEffectのunmount時の処理で消えるので、
+      // ここではマウスカーソルがテーブルの外に出たときのみ削除処理を行う
+      (leavePositionState.row == 0 ||
+        leavePositionState.col == 0 ||
+        leavePositionState.row == rowCells.length - 1 ||
+        leavePositionState.col == columnCells.length - 1)
+    ) {
+      updateTableStyle(leavePositionState.row, leavePositionState.col, UpdateCellType.REMOVE);
+    }
+  }, [leavePositionState]);
 
   // キーが押された時のコールバック
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "z" || event.key === "x") {
-        // 操作中のミノについての state を書き換える
         const cloneControlMino = lodash.cloneDeep(props.currentMino);
         const direction = event.key === "z" ? -1 : 1;
         cloneControlMino.rotation = (cloneControlMino.rotation + direction + 4) % 4;
@@ -83,7 +110,6 @@ export function TetrisTable(props: TetrisTableProps) {
     },
     [props.currentMino]
   );
-
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown, false);
     return () => {
@@ -115,30 +141,6 @@ export function TetrisTable(props: TetrisTableProps) {
       return cloneTmpTableStyle;
     });
   }
-
-  useEffect(() => {
-    if (enterPositionState.row != undefined && enterPositionState.col != undefined) {
-      updateTableStyle(enterPositionState.row, enterPositionState.col, UpdateCellType.PUT);
-    }
-    return () => {
-      if (enterPositionState.row != undefined && enterPositionState.col != undefined) {
-        updateTableStyle(enterPositionState.row, enterPositionState.col, UpdateCellType.REMOVE);
-      }
-    };
-  }, [enterPositionState, props.currentMino]);
-
-  useEffect(() => {
-    if (
-      leavePositionState.row != undefined &&
-      leavePositionState.col != undefined &&
-      (leavePositionState.row == 0 ||
-        leavePositionState.col == 0 ||
-        leavePositionState.row == rowCells.length - 1 ||
-        leavePositionState.col == columnCells.length - 1)
-    ) {
-      updateTableStyle(leavePositionState.row, leavePositionState.col, UpdateCellType.REMOVE);
-    }
-  }, [leavePositionState]);
 
   return (
     <div>
