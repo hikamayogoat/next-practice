@@ -19,8 +19,8 @@ function Controller(props: ControllerProps) {
     BlockKind.I,
     BlockKind.J,
     BlockKind.S,
-    BlockKind.WHITE,
     BlockKind.GRAY,
+    BlockKind.ERASER,
   ];
 
   const onCandidateClick = (mino: BlockKind) => () => {

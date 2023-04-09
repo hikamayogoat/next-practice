@@ -205,6 +205,6 @@ export enum BlockKind {
   I,
   J,
   S,
-  WHITE,
   GRAY,
+  ERASER,
 }

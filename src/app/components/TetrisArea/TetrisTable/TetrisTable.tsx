@@ -39,7 +39,10 @@ export function TetrisTable(props: TetrisTableProps) {
 
   const onClickCell = (row: number, col: number) => () => {
     const relativePositions = getRelativeActivePosition(props.currentMino);
-    if (checkBlockConflict(props.masterTableState, row, col, relativePositions)) {
+    if (
+      props.currentMino.blockKind != BlockKind.ERASER &&
+      checkBlockConflict(props.masterTableState, row, col, relativePositions)
+    ) {
       return;
     }
     const cloneTableState = props.masterTableState.slice();
@@ -127,16 +130,21 @@ export function TetrisTable(props: TetrisTableProps) {
     setTableStyle((prev) => {
       const relativePositions = getRelativeActivePosition(props.currentMino);
       const cloneTmpTableStyle = lodash.cloneDeep(prev);
-      if (!checkBlockConflict(props.masterTableState, row, col, relativePositions)) {
+      if (
+        props.currentMino.blockKind != BlockKind.ERASER &&
+        checkBlockConflict(props.masterTableState, row, col, relativePositions)
+      ) {
+        return prev;
+      } else {
         const opacity = action == UpdateCellType.PUT ? 0.5 : 1;
-        const color =
-          action == UpdateCellType.PUT
-            ? convertNumberToMinoColorCode(props.currentMino.blockKind)
-            : constVars.defaultBackgroundColor;
 
         relativePositions.forEach((position) => {
           const targetX = position[0] + row;
           const targetY = position[1] + col;
+          const color =
+            action == UpdateCellType.PUT
+              ? convertNumberToMinoColorCode(props.currentMino.blockKind)
+              : props.masterTableState[targetX][targetY].backgroundColor;
           cloneTmpTableStyle[targetX][targetY] = {
             backgroundColor: color,
             opacity: opacity,

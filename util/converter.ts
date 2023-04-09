@@ -17,10 +17,10 @@ export function convertNumberToMinoName(kind: BlockKind) {
       return "J";
     case BlockKind.S:
       return "S";
-    case BlockKind.WHITE:
-      return "WHITE";
     case BlockKind.GRAY:
       return "GRAY";
+    case BlockKind.ERASER:
+      return "ERASER";
   }
 }
 
@@ -40,10 +40,10 @@ export function convertNumberToMinoColorCode(kind: BlockKind) {
       return constVars.minoColorCodes.J;
     case BlockKind.S:
       return constVars.minoColorCodes.S;
-    case BlockKind.WHITE:
-      return constVars.minoColorCodes.WHITE;
     case BlockKind.GRAY:
       return constVars.minoColorCodes.GRAY;
+    case BlockKind.ERASER:
+      return constVars.defaultBackgroundColor;
   }
 }
 
