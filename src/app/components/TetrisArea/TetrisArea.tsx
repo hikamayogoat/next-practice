@@ -1,7 +1,7 @@
 import tetrisArea from "./tetrisArea.module.css";
 import { memo, useCallback, useState } from "react";
 import { MinoCandidateMemo } from "./MinoCandidate/MinoCandidate";
-import { NeoTetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
+import { TetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
 import { BlockKind, constVars } from "../../config/config";
 
 export default function Top() {
