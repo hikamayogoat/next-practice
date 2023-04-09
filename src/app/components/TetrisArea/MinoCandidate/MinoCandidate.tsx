@@ -10,7 +10,8 @@ export type MinoCandidateProps = {
   setCurrentMino: (newCurrentControlMino: ControlMino) => void;
 };
 
-export function MinoCandidate(props: MinoCandidateProps) {
+function MinoCandidate(props: MinoCandidateProps) {
+  console.log("rendered");
   const minoCandidateList = [
     BlockKind.O,
     BlockKind.Z,
@@ -68,3 +69,5 @@ export function MinoCandidate(props: MinoCandidateProps) {
     </div>
   );
 }
+
+export const MinoCandidateMemo = memo(MinoCandidate);

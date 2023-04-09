@@ -1,11 +1,11 @@
 import tetrisArea from "./tetrisArea.module.css";
 import { memo, useCallback, useState } from "react";
-import { MinoCandidate } from "./MinoCandidate/MinoCandidate";
-import { TetrisTable } from "./TetrisTable/TetrisTable";
+import { MinoCandidateMemo } from "./MinoCandidate/MinoCandidate";
+import { NeoTetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
 import { BlockKind, constVars } from "../../config/config";
 
 export default function Top() {
-  const [tableState, setTableState] = useState(getTableStateInitArray());
+  const [tableState, setTableState] = useState<any[][]>(getTableStateInitArray());
   const [currentMino, setCurrentMino] = useState({
     // TODO: 何も選択されていない状態を用意する
     blockKind: BlockKind.O,
@@ -27,7 +27,7 @@ export default function Top() {
   return (
     <div className={tetrisArea.top}>
       <TetrisTable {...tetrisFieldProps} />
-      <MinoCandidate {...minoCandidateProps} />
+      <MinoCandidateMemo {...minoCandidateProps} />
     </div>
   );
 }
