@@ -21,7 +21,6 @@ enum UpdateCellType {
 }
 
 export function TetrisTable(props: TetrisTableProps) {
-  console.log("TetrisTable loaded");
   const rowCells = new Array<number>(10).fill(0);
   const columnCells = new Array<number>(20).fill(0);
 
@@ -59,14 +58,12 @@ export function TetrisTable(props: TetrisTableProps) {
 
   // マウスホバーに関するハンドラ
   const onMouseEnter = (row: number, col: number) => () => {
-    console.log("enter");
     setEnterPositionState({
       row: row,
       col: col,
     });
   };
   const onMouseLeave = (row: number, col: number) => () => {
-    console.log("leave");
     setLeavePositionState({
       row: row,
       col: col,
@@ -120,20 +117,17 @@ export function TetrisTable(props: TetrisTableProps) {
   }
 
   useEffect(() => {
-    console.log(`enter useeffect: ${enterPositionState.row}, ${enterPositionState.col}`);
     if (enterPositionState.row != undefined && enterPositionState.col != undefined) {
       updateTableStyle(enterPositionState.row, enterPositionState.col, UpdateCellType.PUT);
     }
     return () => {
-      console.log(`unmount useeffect: ${enterPositionState.row}, ${enterPositionState.col}`);
       if (enterPositionState.row != undefined && enterPositionState.col != undefined) {
         updateTableStyle(enterPositionState.row, enterPositionState.col, UpdateCellType.REMOVE);
       }
     };
-  }, [enterPositionState]);
+  }, [enterPositionState, props.currentMino]);
 
   useEffect(() => {
-    console.log(`leave useeffect: ${leavePositionState.row}, ${leavePositionState.col}`);
     if (
       leavePositionState.row != undefined &&
       leavePositionState.col != undefined &&
