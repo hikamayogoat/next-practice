@@ -13,8 +13,8 @@ export default function Top() {
   });
 
   const tetrisFieldProps = {
-    tableState: tableState,
-    setTableState: setTableState,
+    masterTableState: tableState,
+    setMasterTableState: setTableState,
     currentMino: currentMino,
     setCurrentMino: setCurrentMino,
   };

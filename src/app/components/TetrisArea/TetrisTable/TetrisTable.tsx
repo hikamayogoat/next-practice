@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useLayoutEffect, useState } from "react";
 import tetrisTableStyle from "./tetrisTable.module.css";
 
 import { BlockKind, constVars } from "../../../config/config";
@@ -9,40 +9,41 @@ import { checkBlockConflict } from "util/checker";
 import { ControlMino } from "../TetrisArea";
 
 export type TetrisTableProps = {
-  tableState: any[][];
-  setTableState: Dispatch<SetStateAction<any[]>>;
+  masterTableState: any[][];
+  setMasterTableState: Dispatch<SetStateAction<any[]>>;
   currentMino: ControlMino;
   setCurrentMino: (newCurrentControlMino: ControlMino) => void;
 };
 
+enum UpdateCellType {
+  PUT,
+  REMOVE,
+}
+
 export function TetrisTable(props: TetrisTableProps) {
+  console.log("TetrisTable loaded");
   const rowCells = new Array<number>(10).fill(0);
   const columnCells = new Array<number>(20).fill(0);
 
-  const [tmpTableStyle, setTmpTableStyle] = useState(lodash.cloneDeep(props.tableState));
+  const [tableStyle, setTableStyle] = useState(lodash.cloneDeep(props.masterTableState));
 
-  type Activity = {
+  type Position = {
     row: number | undefined;
     col: number | undefined;
-    actionType: ActionType;
   };
-  enum ActionType {
-    PUT,
-    REMOVE,
-  }
-  const initActivity: Activity = {
+  const initPosition: Position = {
     row: undefined,
     col: undefined,
-    actionType: ActionType.REMOVE,
   };
-  const [activityState, setActivityState] = useState(initActivity);
+  const [enterPositionState, setEnterPositionState] = useState(initPosition);
+  const [leavePositionState, setLeavePositionState] = useState(initPosition);
 
   const onClickCell = (row: number, col: number) => () => {
     const relativePositions = getRelativeActivePosition(props.currentMino);
-    if (checkBlockConflict(props.tableState, row, col, relativePositions)) {
+    if (checkBlockConflict(props.masterTableState, row, col, relativePositions)) {
       return;
     }
-    const cloneTableState = props.tableState.slice();
+    const cloneTableState = props.masterTableState.slice();
     relativePositions.forEach((position) => {
       const targetX = position[0] + row;
       const targetY = position[1] + col;
@@ -52,23 +53,28 @@ export function TetrisTable(props: TetrisTableProps) {
       };
       cloneTableState[targetX][targetY] = newCellStyle;
     });
-    props.setTableState(cloneTableState);
-    setTmpTableStyle(lodash.cloneDeep(cloneTableState));
+    props.setMasterTableState(cloneTableState);
+    setTableStyle(lodash.cloneDeep(cloneTableState));
   };
 
   // マウスホバーに関するハンドラ
   const onMouseEnter = (row: number, col: number) => () => {
-    setActivityState({
+    console.log("enter");
+    // setLeaveState({
+    //   row: row,
+    //   col: col,
+    //   actionType: ActionType.REMOVE,
+    // });
+    setEnterPositionState({
       row: row,
       col: col,
-      actionType: ActionType.PUT,
     });
   };
   const onMouseLeave = (row: number, col: number) => () => {
-    setActivityState({
+    console.log("leave");
+    setLeavePositionState({
       row: row,
       col: col,
-      actionType: ActionType.REMOVE,
     });
   };
 
@@ -83,7 +89,7 @@ export function TetrisTable(props: TetrisTableProps) {
         props.setCurrentMino(cloneControlMino);
       }
     },
-    [props.currentMino, activityState]
+    [props.currentMino]
   );
 
   useEffect(() => {
@@ -94,35 +100,42 @@ export function TetrisTable(props: TetrisTableProps) {
   }, [props.currentMino, handleKeyDown]);
 
   // 再描画処理
-  function updateTmpTableStyle({ row, col, actionType }: Activity) {
-    const cloneTmpTableStyle = lodash.cloneDeep(tmpTableStyle);
-    const relativePositions = getRelativeActivePosition(props.currentMino);
-    if (
-      row == undefined ||
-      col == undefined ||
-      checkBlockConflict(props.tableState, row, col, relativePositions)
-    ) {
-      return;
-    }
-    const opacity = actionType == ActionType.PUT ? 0.5 : 1;
-    const color =
-      actionType == ActionType.PUT
-        ? convertNumberToMinoColorCode(props.currentMino.blockKind)
-        : constVars.defaultBackgroundColor;
-    relativePositions.forEach((position) => {
-      const targetX = position[0] + row;
-      const targetY = position[1] + col;
-      cloneTmpTableStyle[targetX][targetY] = {
-        backgroundColor: color,
-        opacity: opacity,
-      };
-    }),
-      setTmpTableStyle(cloneTmpTableStyle);
+  function updateTmpTable(row: number, col: number, action: UpdateCellType) {
+    setTableStyle((prev) => {
+      const relativePositions = getRelativeActivePosition(props.currentMino);
+      const cloneTmpTableStyle = lodash.cloneDeep(prev);
+      if (!checkBlockConflict(props.masterTableState, row, col, relativePositions)) {
+        const opacity = action == UpdateCellType.PUT ? 0.5 : 1;
+        const color =
+          action == UpdateCellType.PUT
+            ? convertNumberToMinoColorCode(props.currentMino.blockKind)
+            : constVars.defaultBackgroundColor;
+        relativePositions.forEach((position) => {
+          const targetX = position[0] + row;
+          const targetY = position[1] + col;
+          cloneTmpTableStyle[targetX][targetY] = {
+            backgroundColor: color,
+            opacity: opacity,
+          };
+        });
+      }
+      return cloneTmpTableStyle;
+    });
   }
 
   useEffect(() => {
-    updateTmpTableStyle(activityState);
-  }, [activityState, props.currentMino]);
+    console.log(`enter useeffect: ${enterPositionState.row}, ${enterPositionState.col}`);
+    if (enterPositionState.row != undefined && enterPositionState.col != undefined) {
+      updateTmpTable(enterPositionState.row, enterPositionState.col, UpdateCellType.PUT);
+    }
+  }, [enterPositionState]);
+
+  useEffect(() => {
+    console.log(`leave useeffect: ${leavePositionState.row}, ${leavePositionState.col}`);
+    if (leavePositionState.row != undefined && leavePositionState.col != undefined) {
+      updateTmpTable(leavePositionState.row, leavePositionState.col, UpdateCellType.REMOVE);
+    }
+  }, [leavePositionState]);
 
   return (
     <div>
@@ -136,7 +149,7 @@ export function TetrisTable(props: TetrisTableProps) {
                 onMouseEnter={onMouseEnter(row, col)}
                 onMouseLeave={onMouseLeave(row, col)}
                 onClick={onClickCell(row, col)}
-                style={tmpTableStyle[row][col]}
+                style={tableStyle[row][col]}
               ></div>
             ))}
           </div>
