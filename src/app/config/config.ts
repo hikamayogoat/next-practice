@@ -1,5 +1,17 @@
 export const config = {
   historyLength: 5,
+  historyKey: "tableHistory",
+  historyChars: {
+    EMPTY: ".",
+    O: "O",
+    Z: "Z",
+    T: "T",
+    L: "L",
+    I: "I",
+    J: "J",
+    S: "S",
+    GRAY: "G",
+  },
   defaultBackgroundColor: "#909090",
   minoColorCodes: {
     WHITE: "white",

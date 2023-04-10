@@ -1,9 +1,9 @@
 import { BlockKind } from "@/app/config/config";
 import lodash from "lodash";
-import { memo, useCallback } from "react";
+import { memo } from "react";
 import { convertNumberToMinoName } from "util/converter";
 import { ControlMino as MinoStatus } from "../TetrisArea";
-import minoCandidateStyle from "./minoCandidate.module.css";
+import minoCandidateStyle from "./controller.module.css";
 
 export type ControllerProps = {
   currentMino: MinoStatus;
@@ -69,4 +69,4 @@ function Controller(props: ControllerProps) {
   );
 }
 
-export const MinoCandidateMemo = memo(Controller);
+export const ControllerMemo = memo(Controller);

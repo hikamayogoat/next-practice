@@ -3,13 +3,13 @@ import tetrisTableStyle from "./tetrisTable.module.css";
 
 import { BlockKind, config } from "../../../config/config";
 
-import { convertNumberToMinoColorCode, getRelativeActivePosition } from "util/converter";
+import { convertBlockKindToColorCode, getRelativeActivePosition } from "util/converter";
 import { checkBlockConflict } from "util/checker";
 import { ControlMino } from "../TetrisArea";
 
 export type TetrisTableProps = {
-  tableHistoryState: any[][][];
-  setTableHistoryState: Dispatch<SetStateAction<any[][][]>>;
+  masterTableState: any[][];
+  setMasterTableState: Dispatch<SetStateAction<any[][]>>;
   currentMino: ControlMino;
   setCurrentMino: (newCurrentControlMino: ControlMino) => void;
 };
@@ -23,10 +23,7 @@ export function TetrisTable(props: TetrisTableProps) {
   const rowCells = new Array<number>(10).fill(0);
   const columnCells = new Array<number>(20).fill(0);
 
-  const latestIndex = config.historyLength - 1;
-  const [tableStyle, setTableStyle] = useState(
-    structuredClone(props.tableHistoryState[latestIndex])
-  );
+  const [tableStyle, setTableStyle] = useState(structuredClone(props.masterTableState));
 
   type Position = {
     row: number | undefined;
@@ -44,26 +41,21 @@ export function TetrisTable(props: TetrisTableProps) {
     const relativePositions = getRelativeActivePosition(props.currentMino);
     if (
       props.currentMino.blockKind != BlockKind.ERASER &&
-      checkBlockConflict(props.tableHistoryState[latestIndex], row, col, relativePositions)
+      checkBlockConflict(props.masterTableState, row, col, relativePositions)
     ) {
       return;
     }
-    const cloneTableStyle = props.tableHistoryState[latestIndex].slice();
+    const cloneTableStyle = props.masterTableState.slice();
     relativePositions.forEach((position) => {
       const targetX = position[0] + row;
       const targetY = position[1] + col;
       const newCellStyle = {
-        backgroundColor: convertNumberToMinoColorCode(props.currentMino.blockKind),
+        backgroundColor: convertBlockKindToColorCode(props.currentMino.blockKind),
         opacity: 1,
       };
       cloneTableStyle[targetX][targetY] = newCellStyle;
     });
-    const newHistory = [];
-    for (let i = 1; i < config.historyLength; i++) {
-      newHistory.push(props.tableHistoryState[i]);
-    }
-    newHistory.push(cloneTableStyle);
-    props.setTableHistoryState(newHistory);
+    props.setMasterTableState(cloneTableStyle);
     // マスター情報と同じもので表示される盤面を更新する
     setTableStyle(structuredClone(cloneTableStyle));
   };
@@ -140,7 +132,7 @@ export function TetrisTable(props: TetrisTableProps) {
       const cloneTableStyle = structuredClone(prev);
       if (
         props.currentMino.blockKind != BlockKind.ERASER &&
-        checkBlockConflict(props.tableHistoryState[latestIndex], row, col, relativePositions)
+        checkBlockConflict(props.masterTableState, row, col, relativePositions)
       ) {
         return prev;
       } else {
@@ -151,8 +143,8 @@ export function TetrisTable(props: TetrisTableProps) {
           const targetY = position[1] + col;
           const color =
             action == UpdateCellType.PUT
-              ? convertNumberToMinoColorCode(props.currentMino.blockKind)
-              : props.tableHistoryState[latestIndex][targetX][targetY].backgroundColor;
+              ? convertBlockKindToColorCode(props.currentMino.blockKind)
+              : props.masterTableState[targetX][targetY].backgroundColor;
           cloneTableStyle[targetX][targetY] = {
             backgroundColor: color,
             opacity: opacity,

@@ -1,5 +1,6 @@
 import { ControlMino } from "@/app/components/TetrisArea/TetrisArea";
 import { BlockKind, config } from "@/app/config/config";
+import { loggingHistoryTable } from "./debug";
 
 export function convertNumberToMinoName(kind: BlockKind) {
   switch (kind) {
@@ -24,7 +25,7 @@ export function convertNumberToMinoName(kind: BlockKind) {
   }
 }
 
-export function convertNumberToMinoColorCode(kind: BlockKind) {
+export function convertBlockKindToColorCode(kind: BlockKind) {
   switch (kind) {
     case BlockKind.O:
       return config.minoColorCodes.O;
@@ -66,4 +67,46 @@ export function getRelativeActivePosition(mino: ControlMino) {
     default:
       return [[0, 0]];
   }
+}
+
+export function convertHistoryFromTableStyle(tableStyle: any[][]) {
+  const table = new Array(tableStyle.length);
+  for (let x = 0; x < tableStyle.length; x++) {
+    table[x] = new Array(tableStyle[0].length);
+  }
+
+  for (let x = 0; x < tableStyle.length; x++) {
+    for (let y = 0; y < tableStyle[0].length; y++) {
+      const color = tableStyle[x][y].backgroundColor;
+      switch (color) {
+        case config.minoColorCodes.O:
+          table[x][y] = config.historyChars.O;
+          break;
+        case config.minoColorCodes.Z:
+          table[x][y] = config.historyChars.Z;
+          break;
+        case config.minoColorCodes.T:
+          table[x][y] = config.historyChars.T;
+          break;
+        case config.minoColorCodes.L:
+          table[x][y] = config.historyChars.L;
+          break;
+        case config.minoColorCodes.I:
+          table[x][y] = config.historyChars.I;
+          break;
+        case config.minoColorCodes.J:
+          table[x][y] = config.historyChars.J;
+          break;
+        case config.minoColorCodes.S:
+          table[x][y] = config.historyChars.S;
+          break;
+        case config.minoColorCodes.GRAY:
+          table[x][y] = config.historyChars.GRAY;
+          break;
+        default:
+          table[x][y] = config.historyChars.EMPTY;
+      }
+    }
+  }
+  return table;
 }
