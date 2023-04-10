@@ -3,7 +3,6 @@ import tetrisTableStyle from "./tetrisTable.module.css";
 
 import { BlockKind, config } from "../../../config/config";
 
-import lodash, { clone, update } from "lodash";
 import { convertNumberToMinoColorCode, getRelativeActivePosition } from "util/converter";
 import { checkBlockConflict } from "util/checker";
 import { ControlMino } from "../TetrisArea";

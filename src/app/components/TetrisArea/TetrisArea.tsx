@@ -1,5 +1,5 @@
 import tetrisArea from "./tetrisArea.module.css";
-import { memo, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { MinoCandidateMemo } from "./MinoCandidate/MinoCandidate";
 import { TetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
 import { BlockKind, config } from "../../config/config";
@@ -33,10 +33,9 @@ export default function Top() {
 }
 
 function getTableStateInitArray() {
-  // TODO: 同じ参照を持つオブジェクトで初期化されないようにしてるけど、もっといい方法ありそ
-  const initArray = new Array(config.historyLength).fill(0);
+  const initArray = new Array(config.historyLength);
   for (let n = 0; n < config.historyLength; n++) {
-    initArray[n] = new Array(10).fill(0);
+    initArray[n] = new Array(10);
   }
   for (let n = 0; n < config.historyLength; n++) {
     for (let x = 0; x < 10; x++) {
