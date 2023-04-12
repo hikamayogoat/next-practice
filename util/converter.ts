@@ -4,6 +4,8 @@ import { loggingHistoryTable } from "./debug";
 
 export function convertNumberToMinoName(kind: BlockKind) {
   switch (kind) {
+    case BlockKind.NONE:
+      return "無選択";
     case BlockKind.O:
       return "O";
     case BlockKind.Z:
@@ -69,7 +71,7 @@ export function getRelativeActivePosition(mino: ControlMino) {
   }
 }
 
-export function convertHistoryFromTableStyle(tableStyle: any[][]) {
+export function convertToHistoryFromTableStyle(tableStyle: any[][]) {
   const table = new Array(tableStyle.length);
   for (let x = 0; x < tableStyle.length; x++) {
     table[x] = new Array(tableStyle[0].length);
@@ -105,6 +107,47 @@ export function convertHistoryFromTableStyle(tableStyle: any[][]) {
           break;
         default:
           table[x][y] = config.historyChars.EMPTY;
+      }
+    }
+  }
+  return table;
+}
+
+export function convertToTableStyleFromHistory(history: any[][]) {
+  const table = new Array(history.length);
+  for (let x = 0; x < history.length; x++) {
+    table[x] = new Array(history[0].length);
+  }
+
+  for (let x = 0; x < history.length; x++) {
+    for (let y = 0; y < history[0].length; y++) {
+      switch (history[x][y]) {
+        case config.historyChars.O:
+          table[x][y] = { backgroundColor: config.minoColorCodes.O };
+          break;
+        case config.historyChars.Z:
+          table[x][y] = { backgroundColor: config.minoColorCodes.Z };
+          break;
+        case config.historyChars.T:
+          table[x][y] = { backgroundColor: config.minoColorCodes.T };
+          break;
+        case config.historyChars.L:
+          table[x][y] = { backgroundColor: config.minoColorCodes.L };
+          break;
+        case config.historyChars.I:
+          table[x][y] = { backgroundColor: config.minoColorCodes.I };
+          break;
+        case config.historyChars.J:
+          table[x][y] = { backgroundColor: config.minoColorCodes.J };
+          break;
+        case config.historyChars.S:
+          table[x][y] = { backgroundColor: config.minoColorCodes.S };
+          break;
+        case config.historyChars.GRAY:
+          table[x][y] = { backgroundColor: config.minoColorCodes.GRAY };
+          break;
+        default:
+          table[x][y] = { backgroundColor: config.defaultBackgroundColor };
       }
     }
   }

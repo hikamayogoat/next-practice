@@ -3,13 +3,15 @@ import { useEffect, useState } from "react";
 import { ControllerMemo } from "./Controller/Controller";
 import { TetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
 import { BlockKind, config } from "../../config/config";
-import { convertHistoryFromTableStyle } from "util/converter";
-import { loggingHistoryTable } from "util/debug";
+import { convertToHistoryFromTableStyle, convertToTableStyleFromHistory } from "util/converter";
+import { isSameTable as isSameTable } from "util/checker";
+import { initializeHistory } from "util/history";
+import { generateEmptyTableStyleArray } from "util/generater";
 
 export default function Top() {
-  const [masterTableState, setMasterTableState] = useState<any[][]>(getTableStateInitArray());
+  const [masterTableState, setMasterTableState] = useState<any[][]>(generateEmptyTableStyleArray());
   const [currentMino, setCurrentMino] = useState({
-    blockKind: BlockKind.O,
+    blockKind: BlockKind.NONE,
     rotation: 0,
   });
 
@@ -21,24 +23,52 @@ export default function Top() {
   };
 
   const minoCandidateProps = {
+    setMasterTableState: setMasterTableState,
     currentMino: currentMino,
     setCurrentMino: setCurrentMino,
   };
 
   useEffect(() => {
-    const historyJSON = localStorage.getItem(config.historyKey);
-    if (historyJSON == null) {
-      // 初回起動時
-      const emptyTable = convertHistoryFromTableStyle(masterTableState);
-      localStorage.setItem(config.historyKey, JSON.stringify(emptyTable));
+    const history = localStorage.getItem(config.historyStorageKey);
+    if (history != null) {
+      return;
     } else {
-      const prevHistory: string[][][] = JSON.parse(historyJSON);
-      const newElement: any[][] = convertHistoryFromTableStyle(masterTableState);
-      const nextHistory = [...prevHistory, newElement];
-      localStorage.setItem(config.historyKey, JSON.stringify(nextHistory));
-      for (let i = 0; i < prevHistory.length; i++) {
-        loggingHistoryTable(prevHistory[i]);
+      initializeHistory();
+      // 無限ループ回避用フラグ
+      localStorage.setItem(config.recoveryFlagStorageKey, "false");
+    }
+  }, []);
+
+  useEffect(() => {
+    const historyRaw = localStorage.getItem(config.historyStorageKey);
+    const justRecoveredRaw = localStorage.getItem(config.recoveryFlagStorageKey);
+    if (historyRaw != null && justRecoveredRaw != null) {
+      const justRecovered = justRecoveredRaw == "true" ? true : false;
+      const prevHistory: string[][][] = JSON.parse(historyRaw);
+      const emptyTable: string[][] = generateEmptyTableStyleArray();
+
+      if (
+        !justRecovered &&
+        !isSameTable(prevHistory[prevHistory.length - 1], emptyTable) &&
+        currentMino.blockKind == BlockKind.NONE
+      ) {
+        if (confirm("過去のデータがあります。復元しますか？")) {
+          setMasterTableState(convertToTableStyleFromHistory(prevHistory[prevHistory.length - 1]));
+          localStorage.setItem(config.recoveryFlagStorageKey, "true");
+        } else {
+          localStorage.removeItem(config.historyStorageKey);
+          initializeHistory();
+        }
+      } else if (!isSameTable(prevHistory[prevHistory.length - 1], masterTableState)) {
+        localStorage.setItem(config.recoveryFlagStorageKey, "false");
+        const newHistory = [...prevHistory, convertToHistoryFromTableStyle(masterTableState)];
+        localStorage.setItem(config.historyStorageKey, JSON.stringify(newHistory));
       }
+    } else {
+      localStorage.setItem(
+        config.historyStorageKey,
+        JSON.stringify([convertToHistoryFromTableStyle(masterTableState)])
+      );
     }
   }, [masterTableState]);
 
@@ -48,16 +78,6 @@ export default function Top() {
       <ControllerMemo {...minoCandidateProps} />
     </div>
   );
-}
-
-function getTableStateInitArray() {
-  const initArray = new Array(10);
-  for (let x = 0; x < 10; x++) {
-    initArray[x] = new Array(20).fill({
-      backgroundColor: config.defaultBackgroundColor,
-    });
-  }
-  return initArray;
 }
 
 export type ControlMino = {

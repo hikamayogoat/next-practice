@@ -1,6 +1,18 @@
+export enum BlockKind {
+  NONE,
+  O,
+  Z,
+  T,
+  L,
+  I,
+  J,
+  S,
+  GRAY,
+  ERASER,
+}
+
 export const config = {
-  historyLength: 5,
-  historyKey: "tableHistory",
+  historyStorageKey: "tableHistory",
   historyChars: {
     EMPTY: ".",
     O: "O",
@@ -12,6 +24,7 @@ export const config = {
     S: "S",
     GRAY: "G",
   },
+  recoveryFlagStorageKey: "justRecoveredHistory",
   defaultBackgroundColor: "#909090",
   minoColorCodes: {
     WHITE: "white",
@@ -209,15 +222,3 @@ export const config = {
     ],
   },
 };
-
-export enum BlockKind {
-  O,
-  Z,
-  T,
-  L,
-  I,
-  J,
-  S,
-  GRAY,
-  ERASER,
-}

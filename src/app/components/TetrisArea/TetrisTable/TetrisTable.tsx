@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import tetrisTableStyle from "./tetrisTable.module.css";
 
 import { BlockKind, config } from "../../../config/config";
@@ -36,8 +36,15 @@ export function TetrisTable(props: TetrisTableProps) {
   const [enterPositionState, setEnterPositionState] = useState(initPosition);
   const [leavePositionState, setLeavePositionState] = useState(initPosition);
 
+  useEffect(() => {
+    setTableStyle(structuredClone(props.masterTableState));
+  }, [props.masterTableState]);
+
   const onClickCell = (row: number, col: number) => () => {
     // memo: 半透明になってるところを1にしたやつ、で定義してもいいかも？
+    if (props.currentMino.blockKind == BlockKind.NONE) {
+      return;
+    }
     const relativePositions = getRelativeActivePosition(props.currentMino);
     if (
       props.currentMino.blockKind != BlockKind.ERASER &&
@@ -56,12 +63,13 @@ export function TetrisTable(props: TetrisTableProps) {
       cloneTableStyle[targetX][targetY] = newCellStyle;
     });
     props.setMasterTableState(cloneTableStyle);
-    // マスター情報と同じもので表示される盤面を更新する
-    setTableStyle(structuredClone(cloneTableStyle));
   };
 
   // マウスがセルの上に乗ったときの処理
   const onMouseEnter = (row: number, col: number) => () => {
+    if (props.currentMino.blockKind == BlockKind.NONE) {
+      return;
+    }
     setEnterPositionState({
       row: row,
       col: col,
@@ -81,6 +89,9 @@ export function TetrisTable(props: TetrisTableProps) {
 
   // マウスがセルから離れたときの処理
   const onMouseLeave = (row: number, col: number) => () => {
+    if (props.currentMino.blockKind == BlockKind.NONE) {
+      return;
+    }
     setLeavePositionState({
       row: row,
       col: col,

@@ -1,17 +1,20 @@
-import { BlockKind } from "@/app/config/config";
+import { BlockKind, config } from "@/app/config/config";
 import lodash from "lodash";
-import { memo } from "react";
+import { Dispatch, memo, SetStateAction } from "react";
 import { convertNumberToMinoName } from "util/converter";
+import { generateEmptyTableStyleArray } from "util/generater";
 import { ControlMino as MinoStatus } from "../TetrisArea";
-import minoCandidateStyle from "./controller.module.css";
+import controllerStyle from "./controller.module.css";
 
 export type ControllerProps = {
+  setMasterTableState: Dispatch<SetStateAction<any[][]>>;
   currentMino: MinoStatus;
   setCurrentMino: (newCurrentControlMino: MinoStatus) => void;
 };
 
 function Controller(props: ControllerProps) {
   const minoCandidateList = [
+    BlockKind.NONE,
     BlockKind.O,
     BlockKind.Z,
     BlockKind.T,
@@ -40,29 +43,37 @@ function Controller(props: ControllerProps) {
     props.setCurrentMino(newCurrentControlMino);
   };
 
+  const destroyHistory = () => {
+    if (confirm("保存されている履歴を全て削除します。よろしいですか？")) {
+      localStorage.removeItem(config.historyStorageKey);
+      props.setMasterTableState(generateEmptyTableStyleArray);
+    } else {
+      return;
+    }
+  };
+
   return (
-    <div className={minoCandidateStyle.list}>
-      <div className={minoCandidateStyle.controlPanel}>
+    <div className={controllerStyle.list}>
+      <div className={controllerStyle.controlPanel}>
         <div>
           {minoCandidateList.map((mino) => (
-            <div
-              key={`${mino}`}
-              className={minoCandidateStyle.item}
-              onClick={onCandidateClick(mino)}
-            >
+            <div key={`${mino}`} className={controllerStyle.item} onClick={onCandidateClick(mino)}>
               {convertNumberToMinoName(mino)}
             </div>
           ))}
         </div>
         <div>
-          <div className={minoCandidateStyle.item} onClick={onRotateClick(-1)}>
+          <div className={controllerStyle.item} onClick={onRotateClick(-1)}>
             左回転
           </div>
-          <div className={minoCandidateStyle.item} onClick={onRotateClick(1)}>
+          <div className={controllerStyle.item} onClick={onRotateClick(1)}>
             右回転
           </div>
-          <div className={minoCandidateStyle.item}>Undo（未）</div>
-          <div className={minoCandidateStyle.item}>Redo（未）</div>
+          <div className={controllerStyle.item}>Undo（未）</div>
+          <div className={controllerStyle.item}>Redo（未）</div>
+          <div className={controllerStyle.item} onClick={destroyHistory}>
+            履歴全削除
+          </div>
         </div>
       </div>
     </div>

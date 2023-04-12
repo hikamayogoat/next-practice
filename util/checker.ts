@@ -1,4 +1,5 @@
 import { BlockKind, config } from "@/app/config/config";
+import { convertToHistoryFromTableStyle } from "./converter";
 
 export function checkBlockConflict(
   table: any[][],
@@ -19,4 +20,16 @@ export function checkBlockConflict(
     }
   });
   return isConflict;
+}
+
+export function isSameTable(history: any[][], tableStyle: any[][]) {
+  const target = convertToHistoryFromTableStyle(tableStyle);
+  for (let x = 0; x < history.length; x++) {
+    for (let y = 0; y < history[0].length; y++) {
+      if (history[x][y] != target[x][y]) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
