@@ -24,7 +24,6 @@ export const config = {
     S: "S",
     GRAY: "G",
   },
-  updateMutexStorageKey: "updateMutex",
   defaultBackgroundColor: "#909090",
   minoColorCodes: {
     WHITE: "white",
