@@ -49,17 +49,11 @@ export default function Top() {
       const history: string[][][] = JSON.parse(historyRaw);
       const emptyTable: string[][] = generateEmptyTableStyleArray();
 
-      if (
-        history.length > 1 &&
-        historyIndexState == undefined &&
-        !isSameTable(history[history.length - 1], emptyTable) &&
-        currentMino.blockKind == BlockKind.NONE
-      ) {
+      if (history.length > 1 && historyIndexState == undefined) {
+        // 履歴がローカルストレージに残っていて、初回のレンダリングのとき
         if (confirm("過去のデータがあります。復元しますか？")) {
-          console.log(`recover. ${history.length - 1} index`);
           setHistoryIndexState(history.length - 1);
         } else {
-          localStorage.removeItem(config.historyStorageKey);
           initializeHistory();
           setHistoryIndexState(0);
         }
@@ -67,7 +61,7 @@ export default function Top() {
         historyIndexState != undefined &&
         !isSameTable(history[historyIndexState], masterTableState)
       ) {
-        console.log(`masterTable update. update history, and increment index state`);
+        // 初回レンダリングでなく盤面に変更があったとき、履歴に新しい盤面を追加する
         const newHistory = [
           ...history.slice(0, historyIndexState + 1),
           convertToHistoryFromTableStyle(masterTableState),
@@ -75,6 +69,7 @@ export default function Top() {
         localStorage.setItem(config.historyStorageKey, JSON.stringify(newHistory));
         setHistoryIndexState(historyIndexState + 1);
       } else if (historyIndexState == undefined) {
+        // 履歴がない状態での初回レンダリング時は、インデックスを初期化する
         setHistoryIndexState(0);
       }
     }
@@ -82,11 +77,11 @@ export default function Top() {
 
   // historyIndexState が変化したとき、盤面を更新する
   useEffect(() => {
+    // 初回起動時は何もしない
     if (historyIndexState == undefined) {
       return;
     }
 
-    console.log(`historyIndex update: ${historyIndexState}`);
     const historyRaw = localStorage.getItem(config.historyStorageKey);
     if (historyRaw != null) {
       const history: string[][][] = JSON.parse(historyRaw);
@@ -97,7 +92,6 @@ export default function Top() {
         setHistoryIndexState(history.length - 1);
         return;
       } else {
-        console.log(`index update(${historyIndexState}). update Master Table`);
         setMasterTableState(convertToTableStyleFromHistory(history[historyIndexState]));
       }
     }
