@@ -10,9 +10,11 @@ export type ControllerProps = {
   setMasterTableState: Dispatch<SetStateAction<any[][]>>;
   currentMino: MinoStatus;
   setCurrentMino: (newCurrentControlMino: MinoStatus) => void;
+  historyIndexState: number;
+  setHistoryIndexState: Dispatch<SetStateAction<number>>;
 };
 
-function Controller(props: ControllerProps) {
+export function Controller(props: ControllerProps) {
   const minoCandidateList = [
     BlockKind.NONE,
     BlockKind.O,
@@ -52,6 +54,13 @@ function Controller(props: ControllerProps) {
     }
   };
 
+  const onHistoryControlClick = (direction: number) => () => {
+    // TODO: 最新の履歴まで来ているのに Redo が押されたときの処理を考える
+    if (props.historyIndexState == 0 && direction == -1) return;
+    console.log(`direction: ${direction}`);
+    props.setHistoryIndexState(props.historyIndexState + direction);
+  };
+
   return (
     <div className={controllerStyle.list}>
       <div className={controllerStyle.controlPanel}>
@@ -69,8 +78,12 @@ function Controller(props: ControllerProps) {
           <div className={controllerStyle.item} onClick={onRotateClick(1)}>
             右回転
           </div>
-          <div className={controllerStyle.item}>Undo（未）</div>
-          <div className={controllerStyle.item}>Redo（未）</div>
+          <div className={controllerStyle.item} onClick={onHistoryControlClick(-1)}>
+            Undo
+          </div>
+          <div className={controllerStyle.item} onClick={onHistoryControlClick(1)}>
+            Redo
+          </div>
           <div className={controllerStyle.item} onClick={destroyHistory}>
             履歴全削除
           </div>
