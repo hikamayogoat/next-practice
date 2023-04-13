@@ -24,7 +24,7 @@ export const config = {
     S: "S",
     GRAY: "G",
   },
-  recoveryFlagStorageKey: "justRecoveredHistory",
+  updateMutexStorageKey: "updateMutex",
   defaultBackgroundColor: "#909090",
   minoColorCodes: {
     WHITE: "white",

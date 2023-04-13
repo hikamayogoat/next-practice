@@ -10,7 +10,7 @@ import { generateEmptyTableStyleArray } from "util/generater";
 
 export default function Top() {
   const [masterTableState, setMasterTableState] = useState<any[][]>(generateEmptyTableStyleArray());
-  const [historyIndexState, setHistoryIndexState] = useState(0);
+  const [historyIndexState, setHistoryIndexState] = useState<number | undefined>(undefined);
   const [currentMino, setCurrentMino] = useState({
     blockKind: BlockKind.NONE,
     rotation: 0,
@@ -36,8 +36,6 @@ export default function Top() {
     if (history != null) {
       return;
     } else {
-      // 無限ループ回避用フラグ
-      localStorage.setItem(config.recoveryFlagStorageKey, "false");
       initializeHistory();
     }
   }, []);
@@ -46,47 +44,48 @@ export default function Top() {
   // また、ページが開かれたときに履歴が残っていれば復元するかを確認する
   useEffect(() => {
     const historyRaw = localStorage.getItem(config.historyStorageKey);
-    const justRecoveredRaw = localStorage.getItem(config.recoveryFlagStorageKey);
 
-    if (historyRaw != null && justRecoveredRaw != null) {
-      const justRecovered = justRecoveredRaw == "true" ? true : false;
-      const prevHistory: string[][][] = JSON.parse(historyRaw);
+    if (historyRaw != null) {
+      const history: string[][][] = JSON.parse(historyRaw);
       const emptyTable: string[][] = generateEmptyTableStyleArray();
 
       if (
-        !justRecovered &&
-        !isSameTable(prevHistory[prevHistory.length - 1], emptyTable) &&
+        history.length > 1 &&
+        historyIndexState == undefined &&
+        !isSameTable(history[history.length - 1], emptyTable) &&
         currentMino.blockKind == BlockKind.NONE
       ) {
         if (confirm("過去のデータがあります。復元しますか？")) {
-          setHistoryIndexState(prevHistory.length - 1);
-          localStorage.setItem(config.recoveryFlagStorageKey, "true");
+          console.log(`recover. ${history.length - 1} index`);
+          setHistoryIndexState(history.length - 1);
         } else {
           localStorage.removeItem(config.historyStorageKey);
           initializeHistory();
+          setHistoryIndexState(0);
         }
-      } else if (!isSameTable(prevHistory[historyIndexState], masterTableState)) {
-        localStorage.setItem(config.recoveryFlagStorageKey, "false");
+      } else if (
+        historyIndexState != undefined &&
+        !isSameTable(history[historyIndexState], masterTableState)
+      ) {
+        console.log(`masterTable update. update history, and increment index state`);
         const newHistory = [
-          ...prevHistory.slice(0, historyIndexState + 1),
+          ...history.slice(0, historyIndexState + 1),
           convertToHistoryFromTableStyle(masterTableState),
         ];
         localStorage.setItem(config.historyStorageKey, JSON.stringify(newHistory));
         setHistoryIndexState(historyIndexState + 1);
-        console.log(`historyIndex updating: ${historyIndexState + 1}`);
+      } else if (historyIndexState == undefined) {
+        setHistoryIndexState(0);
       }
-    } else {
-      // ここに到達することはないと思うが、念の為初期化処理を入れておく
-      localStorage.setItem(config.recoveryFlagStorageKey, "false");
-      localStorage.setItem(
-        config.historyStorageKey,
-        JSON.stringify([convertToHistoryFromTableStyle(masterTableState)])
-      );
     }
   }, [masterTableState]);
 
   // historyIndexState が変化したとき、盤面を更新する
   useEffect(() => {
+    if (historyIndexState == undefined) {
+      return;
+    }
+
     console.log(`historyIndex update: ${historyIndexState}`);
     const historyRaw = localStorage.getItem(config.historyStorageKey);
     if (historyRaw != null) {
@@ -98,6 +97,7 @@ export default function Top() {
         setHistoryIndexState(history.length - 1);
         return;
       } else {
+        console.log(`index update(${historyIndexState}). update Master Table`);
         setMasterTableState(convertToTableStyleFromHistory(history[historyIndexState]));
       }
     }

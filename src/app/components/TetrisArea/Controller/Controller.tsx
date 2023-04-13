@@ -3,6 +3,7 @@ import lodash from "lodash";
 import { Dispatch, memo, SetStateAction } from "react";
 import { convertNumberToMinoName } from "util/converter";
 import { generateEmptyTableStyleArray } from "util/generater";
+import { initializeHistory } from "util/history";
 import { ControlMino as MinoStatus } from "../TetrisArea";
 import controllerStyle from "./controller.module.css";
 
@@ -10,8 +11,8 @@ export type ControllerProps = {
   setMasterTableState: Dispatch<SetStateAction<any[][]>>;
   currentMino: MinoStatus;
   setCurrentMino: (newCurrentControlMino: MinoStatus) => void;
-  historyIndexState: number;
-  setHistoryIndexState: Dispatch<SetStateAction<number>>;
+  historyIndexState: number | undefined;
+  setHistoryIndexState: Dispatch<SetStateAction<number | undefined>>;
 };
 
 export function Controller(props: ControllerProps) {
@@ -47,18 +48,18 @@ export function Controller(props: ControllerProps) {
 
   const destroyHistory = () => {
     if (confirm("保存されている履歴を全て削除します。よろしいですか？")) {
-      localStorage.removeItem(config.historyStorageKey);
+      initializeHistory();
       props.setMasterTableState(generateEmptyTableStyleArray);
+      props.setHistoryIndexState(0);
     } else {
       return;
     }
   };
 
   const onHistoryControlClick = (direction: number) => () => {
-    // TODO: 最新の履歴まで来ているのに Redo が押されたときの処理を考える
-    if (props.historyIndexState == 0 && direction == -1) return;
-    console.log(`direction: ${direction}`);
-    props.setHistoryIndexState(props.historyIndexState + direction);
+    if (props.historyIndexState != undefined) {
+      props.setHistoryIndexState(props.historyIndexState + direction);
+    }
   };
 
   return (
