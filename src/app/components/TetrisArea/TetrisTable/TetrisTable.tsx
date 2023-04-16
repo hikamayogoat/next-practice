@@ -44,7 +44,6 @@ export function TetrisTable(props: TetrisTableProps) {
   const [enterPositionState, setEnterPositionState] = useState(initPosition);
 
   useEffect(() => {
-    console.log("master table updated");
     const expandedTableStyle = tableStylePaddingClone(props.masterTableState);
     setTableStyle(expandedTableStyle);
   }, [props.masterTableState]);
@@ -135,7 +134,6 @@ export function TetrisTable(props: TetrisTableProps) {
       ) {
         return prev;
       } else {
-        console.log(`master[9][1]: ${props.masterTableState[9][1].backgroundColor}`);
         const opacity = action == UpdateCellType.PUT ? 0.6 : 1;
 
         relativePositions.forEach((position) => {
@@ -181,6 +179,7 @@ export function TetrisTable(props: TetrisTableProps) {
 function tableStylePaddingClone(array: any[][]): any[][] {
   const hiddenStyle = {
     display: "hidden",
+    border: "none",
   };
   const clone = array.slice();
   const newTable = new Array(clone.length + 2);

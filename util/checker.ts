@@ -7,7 +7,6 @@ export function checkBlockConflict(
   col: number,
   relativePositions: number[][]
 ) {
-  console.log(`check conflict: ${row}, ${col} `);
   let isConflict = false;
   relativePositions.forEach((relativePosition) => {
     const targetX = relativePosition[0] + row;
