@@ -47,7 +47,6 @@ export default function Top() {
 
     if (historyRaw != null) {
       const history: string[][][] = JSON.parse(historyRaw);
-      const emptyTable: string[][] = generateEmptyTableStyleArray();
 
       if (history.length > 1 && historyIndexState == undefined) {
         // 履歴がローカルストレージに残っていて、初回のレンダリングのとき

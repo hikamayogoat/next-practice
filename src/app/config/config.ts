@@ -12,6 +12,8 @@ export enum BlockKind {
 }
 
 export const config = {
+  tetrisTableWidth: 10,
+  tetrisTableHeight: 20,
   historyStorageKey: "tableHistory",
   historyChars: {
     EMPTY: ".",

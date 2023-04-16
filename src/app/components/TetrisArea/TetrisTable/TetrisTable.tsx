@@ -3,7 +3,11 @@ import tetrisTableStyle from "./tetrisTable.module.css";
 
 import { BlockKind, config } from "../../../config/config";
 
-import { convertBlockKindToColorCode, getRelativeActivePosition } from "util/converter";
+import {
+  convertBlockKindToColorCode,
+  convertToHistoryFromTableStyle,
+  getRelativeActivePosition,
+} from "util/converter";
 import { checkBlockConflict } from "util/checker";
 import { ControlMino } from "../TetrisArea";
 
@@ -19,11 +23,15 @@ enum UpdateCellType {
   REMOVE,
 }
 
-export function TetrisTable(props: TetrisTableProps) {
-  const rowCells = new Array<number>(10).fill(0);
-  const columnCells = new Array<number>(20).fill(0);
+const range = (begin: number, end: number) => [...Array(end - begin)].map((_, i) => begin + i);
 
-  const [tableStyle, setTableStyle] = useState(structuredClone(props.masterTableState));
+export function TetrisTable(props: TetrisTableProps) {
+  // マウスカーソルがテーブル外に出たことを検出する必要があるため、パディングする
+  const expandedTableStyle = tableStylePaddingClone(props.masterTableState);
+  const [tableStyle, setTableStyle] = useState(expandedTableStyle);
+  // イテレーション用
+  const rowCells = new Array(tableStyle.length).fill(0);
+  const columnCells = new Array(tableStyle[0].length).fill(0);
 
   type Position = {
     row: number | undefined;
@@ -34,10 +42,11 @@ export function TetrisTable(props: TetrisTableProps) {
     col: undefined,
   };
   const [enterPositionState, setEnterPositionState] = useState(initPosition);
-  const [leavePositionState, setLeavePositionState] = useState(initPosition);
 
   useEffect(() => {
-    setTableStyle(structuredClone(props.masterTableState));
+    console.log("master table updated");
+    const expandedTableStyle = tableStylePaddingClone(props.masterTableState);
+    setTableStyle(expandedTableStyle);
   }, [props.masterTableState]);
 
   const onClickCell = (row: number, col: number) => () => {
@@ -52,7 +61,8 @@ export function TetrisTable(props: TetrisTableProps) {
     ) {
       return;
     }
-    const cloneTableStyle = props.masterTableState.slice();
+    const fixedTableStyle = tableStyleRemovePaddingClone(tableStyle);
+    const cloneTableStyle = fixedTableStyle;
     relativePositions.forEach((position) => {
       const targetX = position[0] + row;
       const targetY = position[1] + col;
@@ -70,10 +80,17 @@ export function TetrisTable(props: TetrisTableProps) {
     if (props.currentMino.blockKind == BlockKind.NONE) {
       return;
     }
-    setEnterPositionState({
-      row: row,
-      col: col,
-    });
+    if (row == 0 || col == 0 || row == rowCells.length - 1 || col == columnCells.length - 1) {
+      setEnterPositionState({
+        row: undefined,
+        col: undefined,
+      });
+    } else {
+      setEnterPositionState({
+        row: row,
+        col: col,
+      });
+    }
   };
   useEffect(() => {
     if (enterPositionState.row != undefined && enterPositionState.col != undefined) {
@@ -85,37 +102,7 @@ export function TetrisTable(props: TetrisTableProps) {
         updateTableStyle(enterPositionState.row, enterPositionState.col, UpdateCellType.REMOVE);
       }
     };
-  }, [enterPositionState, props.currentMino]);
-
-  // マウスがセルから離れたときの処理
-  const onMouseLeave = (row: number, col: number) => () => {
-    if (props.currentMino.blockKind == BlockKind.NONE) {
-      return;
-    }
-    setLeavePositionState({
-      row: row,
-      col: col,
-    });
-  };
-  useEffect(() => {
-    if (
-      leavePositionState.row != undefined &&
-      leavePositionState.col != undefined &&
-      // 基本的にはマウスが乗ったときのuseEffectのunmount時の処理で消えるので、
-      // ここではマウスカーソルがテーブルの外に出たときのみ削除処理を行う
-      (leavePositionState.row == 0 ||
-        leavePositionState.col == 0 ||
-        leavePositionState.row == rowCells.length - 1 ||
-        leavePositionState.col == columnCells.length - 1)
-    ) {
-      updateTableStyle(leavePositionState.row, leavePositionState.col, UpdateCellType.REMOVE);
-      // 戻しておかないと、次の回転処理のときに最後の座標に描画される
-      setEnterPositionState({
-        row: undefined,
-        col: undefined,
-      });
-    }
-  }, [leavePositionState]);
+  }, [enterPositionState, props.currentMino, props.masterTableState]);
 
   // キーが押された時のコールバック
   const handleKeyDown = useCallback(
@@ -143,10 +130,12 @@ export function TetrisTable(props: TetrisTableProps) {
       const cloneTableStyle = structuredClone(prev);
       if (
         props.currentMino.blockKind != BlockKind.ERASER &&
-        checkBlockConflict(props.masterTableState, row, col, relativePositions)
+        // masterTableStyle と tableStyle を比較するために、座標を調整する
+        checkBlockConflict(props.masterTableState, row - 1, col - 1, relativePositions)
       ) {
         return prev;
       } else {
+        console.log(`master[9][1]: ${props.masterTableState[9][1].backgroundColor}`);
         const opacity = action == UpdateCellType.PUT ? 0.6 : 1;
 
         relativePositions.forEach((position) => {
@@ -155,7 +144,8 @@ export function TetrisTable(props: TetrisTableProps) {
           const color =
             action == UpdateCellType.PUT
               ? convertBlockKindToColorCode(props.currentMino.blockKind)
-              : props.masterTableState[targetX][targetY].backgroundColor;
+              : // masterTableStyle と tableStyle を比較するために、座標を調整する
+                props.masterTableState[targetX - 1][targetY - 1].backgroundColor;
           cloneTableStyle[targetX][targetY] = {
             backgroundColor: color,
             opacity: opacity,
@@ -176,8 +166,7 @@ export function TetrisTable(props: TetrisTableProps) {
                 key={`${col}-${row}`}
                 className={tetrisTableStyle.cell}
                 onMouseEnter={onMouseEnter(row, col)}
-                onMouseLeave={onMouseLeave(row, col)}
-                onClick={onClickCell(row, col)}
+                onClick={onClickCell(row - 1, col - 1)}
                 style={tableStyle[row][col]}
               ></div>
             ))}
@@ -187,4 +176,40 @@ export function TetrisTable(props: TetrisTableProps) {
       <p>Z: 左回転, X: 右回転</p>
     </div>
   );
+}
+
+function tableStylePaddingClone(array: any[][]): any[][] {
+  const hiddenStyle = {
+    display: "hidden",
+  };
+  const clone = array.slice();
+  const newTable = new Array(clone.length + 2);
+  const newTableWidth = clone.length + 2;
+  const newTableHeight = clone[0].length + 2;
+  for (let x = 0; x < newTableWidth; x++) {
+    if (x == 0 || x == newTableWidth - 1) {
+      newTable[x] = new Array(newTableHeight).fill(hiddenStyle);
+    } else {
+      newTable[x] = new Array(newTableHeight);
+      for (let y = 0; y < newTableHeight; y++) {
+        if (y == 0 || y == newTableHeight - 1) {
+          newTable[x][y] = hiddenStyle;
+        } else {
+          newTable[x][y] = clone[x - 1][y - 1];
+        }
+      }
+    }
+  }
+  return newTable;
+}
+
+function tableStyleRemovePaddingClone(array: any[][]) {
+  const clone = structuredClone(array);
+  clone.shift();
+  clone.pop();
+  clone.forEach((row) => {
+    row.shift();
+    row.pop();
+  });
+  return clone;
 }
