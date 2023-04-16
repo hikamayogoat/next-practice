@@ -21,7 +21,6 @@ export function HistoryList(props: HistoriesProps) {
     } else {
       const history: string[][][] = JSON.parse(historyRaw);
       const newHistoryList = new Array<any[][]>(history.length);
-      // forEach か map で書いてもいいか
       for (let i = 0; i < history.length; i++) {
         // 最新を上に持ってきたいので逆順にする
         newHistoryList[history.length - 1 - i] = convertToTableStyleFromHistory(history[i]);
@@ -31,8 +30,7 @@ export function HistoryList(props: HistoriesProps) {
   }, [props.historyIndexState]);
 
   return (
-    <div className={historyListStyle.histories}>
-      盤面履歴
+    <div className={historyListStyle.sidebar}>
       <ul>
         {historyListState.map((history, idx) => (
           <div key={idx} className={historyListStyle.table}>
