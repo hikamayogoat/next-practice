@@ -1,13 +1,9 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import tetrisTableStyle from "./tetrisTable.module.css";
 
-import { BlockKind, config } from "../../../config/config";
+import { BlockKind } from "../../../config/config";
 
-import {
-  convertBlockKindToColorCode,
-  convertToHistoryFromTableStyle,
-  getRelativeActivePosition,
-} from "util/converter";
+import { convertBlockKindToColorCode, getRelativeActivePosition } from "util/converter";
 import { checkBlockConflict } from "util/checker";
 import { ControlMino } from "../TetrisArea";
 
@@ -22,8 +18,6 @@ enum UpdateCellType {
   PUT,
   REMOVE,
 }
-
-const range = (begin: number, end: number) => [...Array(end - begin)].map((_, i) => begin + i);
 
 export function TetrisTable(props: TetrisTableProps) {
   // マウスカーソルがテーブル外に出たことを検出する必要があるため、パディングする

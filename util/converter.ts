@@ -113,7 +113,7 @@ export function convertToHistoryFromTableStyle(tableStyle: any[][]) {
   return table;
 }
 
-export function convertToTableStyleFromHistory(history: any[][]) {
+export function convertToTableStyleFromHistory(history: any[][]): any[][] {
   const table = new Array(history.length);
   for (let x = 0; x < history.length; x++) {
     table[x] = new Array(history[0].length);

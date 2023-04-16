@@ -7,6 +7,7 @@ import { convertToHistoryFromTableStyle, convertToTableStyleFromHistory } from "
 import { isSameTable as isSameTable } from "util/checker";
 import { initializeHistory } from "util/history";
 import { generateEmptyTableStyleArray } from "util/generater";
+import { HistoryList } from "./Histories/HistoryList";
 
 export default function Top() {
   const [masterTableState, setMasterTableState] = useState<any[][]>(generateEmptyTableStyleArray());
@@ -23,10 +24,15 @@ export default function Top() {
     setCurrentMino: setCurrentMino,
   };
 
-  const minoCandidateProps = {
+  const controllerProps = {
     setMasterTableState: setMasterTableState,
     currentMino: currentMino,
     setCurrentMino: setCurrentMino,
+    historyIndexState: historyIndexState,
+    setHistoryIndexState: setHistoryIndexState,
+  };
+
+  const historiesProps = {
     historyIndexState: historyIndexState,
     setHistoryIndexState: setHistoryIndexState,
   };
@@ -98,8 +104,9 @@ export default function Top() {
 
   return (
     <div className={tetrisArea.top}>
+      <HistoryList {...historiesProps} />
       <TetrisTable {...tetrisFieldProps} />
-      <ControllerMemo {...minoCandidateProps} />
+      <ControllerMemo {...controllerProps} />
     </div>
   );
 }
