@@ -12,6 +12,10 @@ export type HistoriesProps = {
 export function HistoryList(props: HistoriesProps) {
   const emptyStyle = generateEmptyTableStyleArray();
   const [historyListState, setHistoryListState] = useState<any[][][]>([emptyStyle]);
+  const focusedHistoryStyle = {
+    border: "solid 3px",
+    borderColor: "red",
+  };
 
   useEffect(() => {
     const historyRaw = localStorage.getItem(config.historyStorageKey);
@@ -29,24 +33,49 @@ export function HistoryList(props: HistoriesProps) {
     }
   }, [props.historyIndexState]);
 
+  const onClickHistory = (nextIdx: number) => () => {
+    props.setHistoryIndexState(nextIdx);
+  };
+
   return (
     <div className={historyListStyle.sidebar}>
       <ul>
-        {historyListState.map((history, idx) => (
-          <div key={idx} className={historyListStyle.table}>
-            {history.map((row, rowIdx) => (
-              <div key={`${idx}-${rowIdx}`}>
-                {row.map((cell, cellIdx) => (
-                  <div
-                    key={`${idx}-${rowIdx}-${cellIdx}`}
-                    className={historyListStyle.cell}
-                    style={cell}
-                  ></div>
-                ))}
-              </div>
-            ))}
-          </div>
-        ))}
+        {historyListState.map((history, idx) =>
+          props.historyIndexState != undefined &&
+          props.historyIndexState === historyListState.length - idx - 1 ? ( // 逆順にしているため
+            <div key={idx} className={historyListStyle.table} style={focusedHistoryStyle}>
+              {history.map((row, rowIdx) => (
+                <div key={`${idx}-${rowIdx}`}>
+                  {row.map((cell, cellIdx) => (
+                    <div
+                      key={`${idx}-${rowIdx}-${cellIdx}`}
+                      className={historyListStyle.cell}
+                      style={cell}
+                    ></div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div key={idx} className={historyListStyle.table}>
+              {history.map((row, rowIdx) => (
+                <div
+                  key={`${idx}-${rowIdx}`}
+                  onClick={onClickHistory(historyListState.length - idx - 1)} // 逆順にしているため
+                >
+                  {" "}
+                  {row.map((cell, cellIdx) => (
+                    <div
+                      key={`${idx}-${rowIdx}-${cellIdx}`}
+                      className={historyListStyle.cell}
+                      style={cell}
+                    ></div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )
+        )}
       </ul>
     </div>
   );
