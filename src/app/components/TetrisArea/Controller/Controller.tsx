@@ -58,7 +58,12 @@ export function Controller(props: ControllerProps) {
 
   const onHistoryControlClick = (direction: number) => () => {
     if (props.historyIndexState != undefined) {
-      props.setHistoryIndexState(props.historyIndexState + direction);
+      const newIndex = props.historyIndexState + direction;
+      const historyRaw = localStorage.getItem(config.historyStorageKey);
+      const history = historyRaw ? JSON.parse(historyRaw) : [];
+      if (newIndex >= 0 && newIndex < history.length) {
+        props.setHistoryIndexState(newIndex);
+      }
     }
   };
 
