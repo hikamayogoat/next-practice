@@ -1,11 +1,16 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import tetrisTableStyle from "./tetrisTable.module.css";
 
-import { BlockKind } from "../../../config/config";
+import { BlockKind, config } from "../../../config/config";
 
-import { convertBlockKindToColorCode, getRelativeActivePosition } from "util/converter";
+import {
+  convertBlockKindToColorCode,
+  convertToHistoryFromTableStyle,
+  getRelativeActivePosition,
+} from "util/converter";
 import { checkBlockConflict } from "util/checker";
 import { ControlMino } from "../TetrisArea";
+import { loggingHistoryTable } from "util/debug";
 
 export type TetrisTableProps = {
   masterTableState: any[][];
@@ -18,6 +23,14 @@ enum UpdateCellType {
   PUT,
   REMOVE,
 }
+type Position = {
+  row: number | undefined;
+  col: number | undefined;
+};
+const initPosition: Position = {
+  row: undefined,
+  col: undefined,
+};
 
 export function TetrisTable(props: TetrisTableProps) {
   // マウスカーソルがテーブル外に出たことを検出する必要があるため、パディングする
@@ -27,19 +40,32 @@ export function TetrisTable(props: TetrisTableProps) {
   const rowCells = new Array(tableStyle.length).fill(0);
   const columnCells = new Array(tableStyle[0].length).fill(0);
 
-  type Position = {
-    row: number | undefined;
-    col: number | undefined;
-  };
-  const initPosition: Position = {
-    row: undefined,
-    col: undefined,
-  };
   const [enterPositionState, setEnterPositionState] = useState(initPosition);
+  const [erasableRowsState, setErasableRowsState] = useState(new Array<number>(0));
 
+  // マスターテーブルの状態が変わったら、テーブルのスタイルを更新する
   useEffect(() => {
     const expandedTableStyle = tableStylePaddingClone(props.masterTableState);
     setTableStyle(expandedTableStyle);
+  }, [props.masterTableState]);
+
+  // マスターテーブルの状態が変わったら、消去できるラインがあるかを判定する
+  useEffect(() => {
+    const erasableRows = new Array<number>(0);
+    for (let y = 0; y < config.tetrisTableHeight; y++) {
+      let isLineFull = true;
+      for (let x = 0; x < config.tetrisTableWidth; x++) {
+        if (props.masterTableState[x][y].backgroundColor == config.defaultBackgroundColor) {
+          isLineFull = false;
+        }
+      }
+      if (isLineFull) {
+        erasableRows.push(y);
+      }
+    }
+    if (erasableRows.length != 0) {
+      setErasableRowsState(erasableRows);
+    }
   }, [props.masterTableState]);
 
   const onClickCell = (row: number, col: number) => () => {
@@ -148,6 +174,23 @@ export function TetrisTable(props: TetrisTableProps) {
     });
   }
 
+  // ライン消去してその分詰める
+  const onClickEraseLine = () => {
+    const cloneMasterTableStyle = structuredClone(props.masterTableState);
+    erasableRowsState.forEach((rowIdx) => {
+      for (let colIdx = 0; colIdx < cloneMasterTableStyle.length; colIdx++) {
+        for (let i = rowIdx; i > 0; i--) {
+          cloneMasterTableStyle[colIdx][i] = cloneMasterTableStyle[colIdx][i - 1];
+        }
+        cloneMasterTableStyle[colIdx][0] = {
+          backgroundColor: config.defaultBackgroundColor,
+        };
+      }
+    });
+    setErasableRowsState([]);
+    props.setMasterTableState(cloneMasterTableStyle);
+  };
+
   return (
     <div>
       <div className={tetrisTableStyle.table}>
@@ -166,6 +209,11 @@ export function TetrisTable(props: TetrisTableProps) {
         ))}
       </div>
       <p>Z: 左回転, X: 右回転</p>
+      {erasableRowsState.length > 0 ? (
+        <button onClick={onClickEraseLine}>ライン消去</button>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
