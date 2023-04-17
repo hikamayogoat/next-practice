@@ -3,14 +3,9 @@ import tetrisTableStyle from "./tetrisTable.module.css";
 
 import { BlockKind, config } from "../../../config/config";
 
-import {
-  convertBlockKindToColorCode,
-  convertToHistoryFromTableStyle,
-  getRelativeActivePosition,
-} from "util/converter";
+import { convertBlockKindToColorCode, getRelativeActivePosition } from "util/converter";
 import { checkBlockConflict } from "util/checker";
 import { ControlMino } from "../TetrisArea";
-import { loggingHistoryTable } from "util/debug";
 
 export type TetrisTableProps = {
   masterTableState: any[][];
@@ -65,6 +60,8 @@ export function TetrisTable(props: TetrisTableProps) {
     }
     if (erasableRows.length != 0) {
       setErasableRowsState(erasableRows);
+    } else {
+      setErasableRowsState([]);
     }
   }, [props.masterTableState]);
 
@@ -210,7 +207,7 @@ export function TetrisTable(props: TetrisTableProps) {
       </div>
       <p>Z: 左回転, X: 右回転</p>
       {erasableRowsState.length > 0 ? (
-        <button onClick={onClickEraseLine}>ライン消去</button>
+        <button onClick={onClickEraseLine}>ライン消去</button> // TODO: 揃った瞬間に消えたほうがいいか、もしくは履歴を見ているときは操作不能にするなどの工夫が必要
       ) : (
         <></>
       )}
