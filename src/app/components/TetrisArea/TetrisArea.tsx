@@ -1,5 +1,5 @@
 import tetrisArea from "./tetrisArea.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ControllerMemo, Controller } from "./Controller/Controller";
 import { TetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
 import { BlockKind, config } from "../../config/config";
@@ -17,16 +17,29 @@ export default function Top() {
     rotation: 0,
   });
 
-  // 現在最新の盤面が表示されているかどうかの変数
-  const history = JSON.parse(localStorage.getItem(config.historyStorageKey) || "[]");
-  const isLatestTable = historyIndexState == undefined || historyIndexState == history.length - 1;
+  // 現在最新の盤面が表示されているかどうかを保持しておく
+  const isLatestTable = useRef(false);
+
+  useEffect(() => {
+    const historyRaw = localStorage.getItem(config.historyStorageKey);
+    if (historyRaw == null) {
+      return;
+    } else {
+      const history = JSON.parse(historyRaw);
+      if (history.length - 1 == historyIndexState) {
+        isLatestTable.current = true;
+      } else {
+        isLatestTable.current = false;
+      }
+    }
+  }, [historyIndexState]);
 
   const tetrisFieldProps = {
     masterTableState: masterTableState,
     setMasterTableState: setMasterTableState,
     currentMino: currentMino,
     setCurrentMino: setCurrentMino,
-    isLatestTable: isLatestTable,
+    isLatestTable: isLatestTable.current,
   };
 
   const controllerProps = {
