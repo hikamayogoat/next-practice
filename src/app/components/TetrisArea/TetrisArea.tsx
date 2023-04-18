@@ -17,11 +17,16 @@ export default function Top() {
     rotation: 0,
   });
 
+  // 現在最新の盤面が表示されているかどうかの変数
+  const history = JSON.parse(localStorage.getItem(config.historyStorageKey) || "[]");
+  const isLatestTable = historyIndexState == undefined || historyIndexState == history.length - 1;
+
   const tetrisFieldProps = {
     masterTableState: masterTableState,
     setMasterTableState: setMasterTableState,
     currentMino: currentMino,
     setCurrentMino: setCurrentMino,
+    isLatestTable: isLatestTable,
   };
 
   const controllerProps = {

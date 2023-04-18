@@ -12,6 +12,7 @@ export type TetrisTableProps = {
   setMasterTableState: Dispatch<SetStateAction<any[][]>>;
   currentMino: ControlMino;
   setCurrentMino: (newCurrentControlMino: ControlMino) => void;
+  isLatestTable: boolean;
 };
 
 enum UpdateCellType {
@@ -206,8 +207,8 @@ export function TetrisTable(props: TetrisTableProps) {
         ))}
       </div>
       <p>Z: 左回転, X: 右回転</p>
-      {erasableRowsState.length > 0 ? (
-        <button onClick={onClickEraseLine}>ライン消去</button> // TODO: 揃った瞬間に消えたほうがいいか、もしくは履歴を見ているときは操作不能にするなどの工夫が必要
+      {erasableRowsState.length > 0 && props.isLatestTable ? (
+        <button onClick={onClickEraseLine}>ライン消去</button>
       ) : (
         <></>
       )}
