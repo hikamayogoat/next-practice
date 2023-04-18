@@ -66,9 +66,19 @@ export function TetrisTable(props: TetrisTableProps) {
     }
   }, [props.masterTableState]);
 
+  // memo: 半透明になってるところを1にしたやつ、で定義してもいいかも？
   const onClickCell = (row: number, col: number) => () => {
-    // memo: 半透明になってるところを1にしたやつ、で定義してもいいかも？
     if (props.currentMino.blockKind == BlockKind.NONE) {
+      return;
+    }
+    if (
+      erasableRowsState.length > 0 &&
+      props.isLatestTable &&
+      confirm(
+        "消去できるラインがあります。操作を取り消しませんか？\n" +
+          "※このまま進めた場合、ありえない操作履歴になります。"
+      )
+    ) {
       return;
     }
     const relativePositions = getRelativeActivePosition(props.currentMino);
