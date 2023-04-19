@@ -5,7 +5,11 @@ import { TetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
 import { BlockKind, config } from "../../config/config";
 import { convertToHistoryFromTableStyle, convertToTableStyleFromHistory } from "util/converter";
 import { isSameTable as isSameTable } from "util/checker";
-import { initializeHistory, initializeUsedMinoHistory } from "util/history";
+import {
+  initializeHistory,
+  initializeLineClearIndex as initializeLineClearIndexList,
+  initializeUsedMinoHistory,
+} from "util/history";
 import { generateEmptyTableStyleArray } from "util/generater";
 import { HistoryList } from "./Histories/HistoryList";
 
@@ -22,6 +26,9 @@ export default function Top() {
 
   // 今表示されている盤面までに使ったミノを保持しておく
   const usedMinoList = useRef<BlockKind[]>([]);
+
+  // どのタイミングでライン消去したのかの判定用（usedMinoListの整合性のため）
+  const willLineClear = useRef(false);
 
   // TODO: 不整合が起きていたら検知する仕組みがないとどこかで壊れそう
   useEffect(() => {
@@ -52,6 +59,7 @@ export default function Top() {
     currentMino: currentMino,
     setCurrentMino: setCurrentMino,
     isLatestTable: isLatestTable.current,
+    willLineClear: willLineClear,
   };
 
   const controllerProps = {
@@ -82,6 +90,13 @@ export default function Top() {
       return;
     } else {
       initializeUsedMinoHistory();
+    }
+
+    const lineClearIndexList = localStorage.getItem(config.lineClearIndexListStorageKey);
+    if (lineClearIndexList != null) {
+      return;
+    } else {
+      initializeLineClearIndexList();
     }
   }, []);
 
@@ -115,7 +130,14 @@ export default function Top() {
         ];
         const newUsedMinoHistory = [...usedMinoHistory, currentMino.blockKind];
         localStorage.setItem(config.historyStorageKey, JSON.stringify(newHistory));
-        localStorage.setItem(config.usedMinoHistoryStorageKey, JSON.stringify(newUsedMinoHistory));
+        if (willLineClear.current) {
+          willLineClear.current = false;
+        } else {
+          localStorage.setItem(
+            config.usedMinoHistoryStorageKey,
+            JSON.stringify(newUsedMinoHistory)
+          );
+        }
         setHistoryIndexState(historyIndexState + 1);
         setCurrentMino({
           blockKind: BlockKind.NONE,

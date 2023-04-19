@@ -27,6 +27,7 @@ export const config = {
     GRAY: "G",
   },
   usedMinoHistoryStorageKey: "usedMinoHistory",
+  lineClearIndexListStorageKey: "lineClearIndex",
   defaultBackgroundColor: "#909090",
   minoColorCodes: {
     WHITE: "white",

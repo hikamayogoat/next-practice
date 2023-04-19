@@ -1,4 +1,11 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import tetrisTableStyle from "./tetrisTable.module.css";
 
 import { BlockKind, config } from "../../../config/config";
@@ -13,6 +20,7 @@ export type TetrisTableProps = {
   currentMino: ControlMino;
   setCurrentMino: (newCurrentControlMino: ControlMino) => void;
   isLatestTable: boolean;
+  willLineClear: MutableRefObject<boolean>;
 };
 
 enum UpdateCellType {
@@ -198,6 +206,9 @@ export function TetrisTable(props: TetrisTableProps) {
     });
     setErasableRowsState([]);
     props.setMasterTableState(cloneMasterTableStyle);
+
+    // このタイミングでライン消去したことを保存しておく
+    props.willLineClear.current = true;
   };
 
   return (

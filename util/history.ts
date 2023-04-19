@@ -10,6 +10,9 @@ export function initializeHistory() {
 }
 
 export function initializeUsedMinoHistory() {
-  // 空配列を入れるので、盤面履歴よりindexが1つ少なくなることに注意
   localStorage.setItem(config.usedMinoHistoryStorageKey, JSON.stringify([]));
+}
+
+export function initializeLineClearIndex() {
+  localStorage.setItem(config.lineClearIndexListStorageKey, JSON.stringify([]));
 }
