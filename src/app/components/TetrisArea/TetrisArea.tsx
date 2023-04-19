@@ -47,7 +47,10 @@ export default function Top() {
       } else {
         usedMinoList.current = usedMinoHistory.slice(0, historyIndexState);
       }
-    } else if (historyRaw == null || usedMinoHistoryRaw == null) {
+    } else if (
+      (historyRaw != null && usedMinoHistoryRaw == null) ||
+      (historyRaw == null && usedMinoHistoryRaw != null)
+    ) {
       alert("ブラウザに保存している履歴データが壊れているため、リセットします");
       initializeHistory();
       initializeUsedMinoHistory();
