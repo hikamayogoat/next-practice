@@ -5,11 +5,7 @@ import { TetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
 import { BlockKind, config } from "../../config/config";
 import { convertToHistoryFromTableStyle, convertToTableStyleFromHistory } from "util/converter";
 import { isSameTable as isSameTable } from "util/checker";
-import {
-  initializeHistory,
-  initializeLineClearIndex as initializeLineClearIndexList,
-  initializeUsedMinoHistory,
-} from "util/history";
+import { initializeHistory, initializeUsedMinoHistory } from "util/history";
 import { generateEmptyTableStyleArray } from "util/generater";
 import { HistoryList } from "./Histories/HistoryList";
 
@@ -94,13 +90,6 @@ export default function Top() {
       return;
     } else {
       initializeUsedMinoHistory();
-    }
-
-    const lineClearIndexList = localStorage.getItem(config.lineClearIndexListStorageKey);
-    if (lineClearIndexList != null) {
-      return;
-    } else {
-      initializeLineClearIndexList();
     }
   }, []);
 

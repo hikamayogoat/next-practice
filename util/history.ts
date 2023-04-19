@@ -12,7 +12,3 @@ export function initializeHistory() {
 export function initializeUsedMinoHistory() {
   localStorage.setItem(config.usedMinoHistoryStorageKey, JSON.stringify([]));
 }
-
-export function initializeLineClearIndex() {
-  localStorage.setItem(config.lineClearIndexListStorageKey, JSON.stringify([]));
-}
