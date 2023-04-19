@@ -1,9 +1,9 @@
 import { BlockKind, config } from "@/app/config/config";
 import lodash from "lodash";
-import { Dispatch, memo, SetStateAction } from "react";
+import { Dispatch, memo, SetStateAction, useEffect } from "react";
 import { convertNumberToMinoName } from "util/converter";
 import { generateEmptyTableStyleArray } from "util/generater";
-import { initializeHistory } from "util/history";
+import { initializeHistory, initializeUsedMinoHistory } from "util/history";
 import { ControlMino as MinoStatus } from "../TetrisArea";
 import controllerStyle from "./controller.module.css";
 
@@ -13,11 +13,12 @@ export type ControllerProps = {
   setCurrentMino: (newCurrentControlMino: MinoStatus) => void;
   historyIndexState: number | undefined;
   setHistoryIndexState: Dispatch<SetStateAction<number | undefined>>;
+  unavailableMinoList: number[];
 };
 
 export function Controller(props: ControllerProps) {
-  const minoCandidateList = [
-    BlockKind.NONE,
+  // config.BlockKind と同じ順番にしないと不整合が起こるので注意
+  const blockKindList = [
     BlockKind.O,
     BlockKind.Z,
     BlockKind.T,
@@ -25,11 +26,12 @@ export function Controller(props: ControllerProps) {
     BlockKind.I,
     BlockKind.J,
     BlockKind.S,
-    BlockKind.GRAY,
-    BlockKind.ERASER,
+    BlockKind.NONE,
+    // BlockKind.GRAY,
+    // BlockKind.ERASER,
   ];
 
-  const onCandidateClick = (mino: BlockKind) => () => {
+  const onMinoClick = (mino: BlockKind) => () => {
     const newCurrentControlMino: MinoStatus = {
       blockKind: mino,
       rotation: 0,
@@ -49,6 +51,7 @@ export function Controller(props: ControllerProps) {
   const destroyHistory = () => {
     if (confirm("保存されている履歴を全て削除します。よろしいですか？")) {
       initializeHistory();
+      initializeUsedMinoHistory();
       props.setMasterTableState(generateEmptyTableStyleArray);
       props.setHistoryIndexState(0);
     } else {
@@ -71,11 +74,17 @@ export function Controller(props: ControllerProps) {
     <div className={controllerStyle.list}>
       <div className={controllerStyle.controlPanel}>
         <div>
-          {minoCandidateList.map((mino) => (
-            <div key={`${mino}`} className={controllerStyle.item} onClick={onCandidateClick(mino)}>
-              {convertNumberToMinoName(mino)}
-            </div>
-          ))}
+          {blockKindList.map((mino) =>
+            props.unavailableMinoList.includes(mino) ? (
+              <div key={`${mino}`} className={controllerStyle.item}>
+                {convertNumberToMinoName(mino)}×
+              </div>
+            ) : (
+              <div key={`${mino}`} className={controllerStyle.item} onClick={onMinoClick(mino)}>
+                {convertNumberToMinoName(mino)}
+              </div>
+            )
+          )}
         </div>
         <div>
           <div className={controllerStyle.item} onClick={onRotateClick(-1)}>

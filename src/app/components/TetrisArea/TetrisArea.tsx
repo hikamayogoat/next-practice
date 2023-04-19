@@ -5,7 +5,7 @@ import { TetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
 import { BlockKind, config } from "../../config/config";
 import { convertToHistoryFromTableStyle, convertToTableStyleFromHistory } from "util/converter";
 import { isSameTable as isSameTable } from "util/checker";
-import { initializeHistory } from "util/history";
+import { initializeHistory, initializeUsedMinoHistory } from "util/history";
 import { generateEmptyTableStyleArray } from "util/generater";
 import { HistoryList } from "./Histories/HistoryList";
 
@@ -20,9 +20,14 @@ export default function Top() {
   // 現在最新の盤面が表示されているかどうかを保持しておく
   const isLatestTable = useRef(false);
 
+  // 今表示されている盤面までに使ったミノを保持しておく
+  const usedMinoList = useRef<BlockKind[]>([]);
+
+  // TODO: 不整合が起きていたら検知する仕組みがないとどこかで壊れそう
   useEffect(() => {
     const historyRaw = localStorage.getItem(config.historyStorageKey);
-    if (historyRaw == null) {
+    const usedMinoHistoryRaw = localStorage.getItem(config.usedMinoHistoryStorageKey);
+    if (historyRaw == null || usedMinoHistoryRaw == null) {
       return;
     } else {
       const history = JSON.parse(historyRaw);
@@ -30,6 +35,13 @@ export default function Top() {
         isLatestTable.current = true;
       } else {
         isLatestTable.current = false;
+      }
+
+      const usedMinoHistory = JSON.parse(usedMinoHistoryRaw);
+      if (historyIndexState == 0) {
+        usedMinoList.current = [];
+      } else {
+        usedMinoList.current = usedMinoHistory.slice(0, historyIndexState);
       }
     }
   }, [historyIndexState]);
@@ -48,6 +60,7 @@ export default function Top() {
     setCurrentMino: setCurrentMino,
     historyIndexState: historyIndexState,
     setHistoryIndexState: setHistoryIndexState,
+    unavailableMinoList: generateFixedUsedMinoList(usedMinoList.current),
   };
 
   const historiesProps = {
@@ -55,6 +68,7 @@ export default function Top() {
     setHistoryIndexState: setHistoryIndexState,
   };
 
+  // localStorage の初期化処理
   useEffect(() => {
     const history = localStorage.getItem(config.historyStorageKey);
     if (history != null) {
@@ -62,15 +76,24 @@ export default function Top() {
     } else {
       initializeHistory();
     }
+
+    const usedMinoHistory = localStorage.getItem(config.usedMinoHistoryStorageKey);
+    if (usedMinoHistory != null) {
+      return;
+    } else {
+      initializeUsedMinoHistory();
+    }
   }, []);
 
   // 盤面が変わったとき、ローカルストレージにその盤面を追加して、今履歴のどこにいるかを更新する
   // また、ページが開かれたときに履歴が残っていれば復元するかを確認する
   useEffect(() => {
     const historyRaw = localStorage.getItem(config.historyStorageKey);
+    const usedMinoHistoryRaw = localStorage.getItem(config.usedMinoHistoryStorageKey);
 
-    if (historyRaw != null) {
+    if (historyRaw != null && usedMinoHistoryRaw != null) {
       const history: string[][][] = JSON.parse(historyRaw);
+      const usedMinoHistory: BlockKind[] = JSON.parse(usedMinoHistoryRaw);
 
       if (history.length > 1 && historyIndexState == undefined) {
         // 履歴がローカルストレージに残っていて、初回のレンダリングのとき
@@ -78,6 +101,7 @@ export default function Top() {
           setHistoryIndexState(history.length - 1);
         } else {
           initializeHistory();
+          initializeUsedMinoHistory();
           setHistoryIndexState(0);
         }
       } else if (
@@ -89,8 +113,14 @@ export default function Top() {
           ...history.slice(0, historyIndexState + 1),
           convertToHistoryFromTableStyle(masterTableState),
         ];
+        const newUsedMinoHistory = [...usedMinoHistory, currentMino.blockKind];
         localStorage.setItem(config.historyStorageKey, JSON.stringify(newHistory));
+        localStorage.setItem(config.usedMinoHistoryStorageKey, JSON.stringify(newUsedMinoHistory));
         setHistoryIndexState(historyIndexState + 1);
+        setCurrentMino({
+          blockKind: BlockKind.NONE,
+          rotation: 0,
+        });
       } else if (historyIndexState == undefined) {
         // 履歴がない状態での初回レンダリング時は、インデックスを初期化する
         setHistoryIndexState(0);
@@ -124,7 +154,7 @@ export default function Top() {
     <div className={tetrisArea.top}>
       <HistoryList {...historiesProps} />
       <TetrisTable {...tetrisFieldProps} />
-      <ControllerMemo {...controllerProps} />
+      <Controller {...controllerProps} />
     </div>
   );
 }
@@ -133,3 +163,8 @@ export type ControlMino = {
   blockKind: BlockKind;
   rotation: number;
 };
+
+function generateFixedUsedMinoList(usedMinoList: BlockKind[]): BlockKind[] {
+  const startIdx = ~~(usedMinoList.length / 7);
+  return usedMinoList.slice(startIdx * 7, startIdx * 7 + 7);
+}

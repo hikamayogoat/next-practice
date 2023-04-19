@@ -83,7 +83,7 @@ export function TetrisTable(props: TetrisTableProps) {
     }
     const relativePositions = getRelativeActivePosition(props.currentMino);
     if (
-      props.currentMino.blockKind != BlockKind.ERASER &&
+      // props.currentMino.blockKind != BlockKind.ERASER &&
       checkBlockConflict(props.masterTableState, row, col, relativePositions)
     ) {
       return;
@@ -100,6 +100,7 @@ export function TetrisTable(props: TetrisTableProps) {
       cloneTableStyle[targetX][targetY] = newCellStyle;
     });
     props.setMasterTableState(cloneTableStyle);
+    setEnterPositionState(initPosition);
   };
 
   // マウスがセルの上に乗ったときの処理
@@ -156,7 +157,7 @@ export function TetrisTable(props: TetrisTableProps) {
       const relativePositions = getRelativeActivePosition(props.currentMino);
       const cloneTableStyle = structuredClone(prev);
       if (
-        props.currentMino.blockKind != BlockKind.ERASER &&
+        // props.currentMino.blockKind != BlockKind.ERASER &&
         // masterTableStyle と tableStyle を比較するために、座標を調整する
         checkBlockConflict(props.masterTableState, row - 1, col - 1, relativePositions)
       ) {

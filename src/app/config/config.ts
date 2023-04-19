@@ -7,8 +7,8 @@ export enum BlockKind {
   I,
   J,
   S,
-  GRAY,
-  ERASER,
+  // GRAY,
+  // ERASER,
 }
 
 export const config = {
@@ -26,6 +26,7 @@ export const config = {
     S: "S",
     GRAY: "G",
   },
+  usedMinoHistoryStorageKey: "usedMinoHistory",
   defaultBackgroundColor: "#909090",
   minoColorCodes: {
     WHITE: "white",

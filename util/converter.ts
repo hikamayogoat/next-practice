@@ -20,10 +20,10 @@ export function convertNumberToMinoName(kind: BlockKind) {
       return "J";
     case BlockKind.S:
       return "S";
-    case BlockKind.GRAY:
-      return "GRAY";
-    case BlockKind.ERASER:
-      return "ERASER";
+    // case BlockKind.GRAY:
+    //   return "GRAY";
+    // case BlockKind.ERASER:
+    //   return "ERASER";
   }
 }
 
@@ -43,10 +43,10 @@ export function convertBlockKindToColorCode(kind: BlockKind) {
       return config.minoColorCodes.J;
     case BlockKind.S:
       return config.minoColorCodes.S;
-    case BlockKind.GRAY:
-      return config.minoColorCodes.GRAY;
-    case BlockKind.ERASER:
-      return config.defaultBackgroundColor;
+    // case BlockKind.GRAY:
+    //   return config.minoColorCodes.GRAY;
+    // case BlockKind.ERASER:
+    //   return config.defaultBackgroundColor;
   }
 }
 
