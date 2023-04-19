@@ -30,13 +30,10 @@ export default function Top() {
   // どのタイミングでライン消去したのかの判定用（usedMinoListの整合性のため）
   const willLineClear = useRef(false);
 
-  // TODO: 不整合が起きていたら検知する仕組みがないとどこかで壊れそう
   useEffect(() => {
     const historyRaw = localStorage.getItem(config.historyStorageKey);
     const usedMinoHistoryRaw = localStorage.getItem(config.usedMinoHistoryStorageKey);
-    if (historyRaw == null || usedMinoHistoryRaw == null) {
-      return;
-    } else {
+    if (historyRaw != null && usedMinoHistoryRaw != null) {
       const history = JSON.parse(historyRaw);
       if (history.length - 1 == historyIndexState) {
         isLatestTable.current = true;
@@ -50,6 +47,10 @@ export default function Top() {
       } else {
         usedMinoList.current = usedMinoHistory.slice(0, historyIndexState);
       }
+    } else if (historyRaw == null || usedMinoHistoryRaw == null) {
+      alert("ブラウザに保存している履歴データが壊れているため、リセットします");
+      initializeHistory();
+      initializeUsedMinoHistory();
     }
   }, [historyIndexState]);
 

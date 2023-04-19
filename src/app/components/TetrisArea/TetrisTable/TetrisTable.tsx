@@ -83,8 +83,8 @@ export function TetrisTable(props: TetrisTableProps) {
       erasableRowsState.length > 0 &&
       props.isLatestTable &&
       confirm(
-        "消去できるラインがあります。操作を取り消しませんか？\n" +
-          "※このまま進めた場合、ありえない操作履歴になります。"
+        "消去できるラインがあります。操作を取り消すことをおすすめします。\n" +
+          "この警告をキャンセルした場合、正しい譜面になりません。"
       )
     ) {
       return;
