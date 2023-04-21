@@ -1,7 +1,6 @@
 .top {
   display: grid;
-  grid-template-columns: min-content 1fr 1fr;
+  grid-template-columns: min-content 1fr 1fr min-content;
   grid-template-rows: 1fr;
   grid-gap: 20px;
-  height: 100vh;
 }

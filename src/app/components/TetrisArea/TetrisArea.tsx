@@ -8,6 +8,8 @@ import { isSameTable as isSameTable } from "util/checker";
 import { initializeHistory, initializeUsedMinoHistory } from "util/history";
 import { generateEmptyTableStyleArray } from "util/generater";
 import { HistoryList } from "./Histories/HistoryList";
+import { deflateString, inflateString } from "util/compress";
+import { useSearchParams } from "next/navigation";
 
 export default function Top() {
   const [masterTableState, setMasterTableState] = useState<any[][]>(generateEmptyTableStyleArray());
@@ -19,12 +21,43 @@ export default function Top() {
 
   // 現在最新の盤面が表示されているかどうかを保持しておく
   const isLatestTable = useRef(false);
-
   // 今表示されている盤面までに使ったミノを保持しておく
   const usedMinoList = useRef<BlockKind[]>([]);
-
   // どのタイミングでライン消去したのかの判定用（usedMinoListの整合性のため）
   const willLineClear = useRef(false);
+  // クエリパラメータで盤面情報を受け取ってそれを読み込んだ場合、履歴復元をスキップするフラグ
+  const isLoadedFromQuery = useRef(false);
+
+  // クエリパラメータからの読み込み
+  useEffect(() => {
+    const historyParam = new URLSearchParams(window.location.search).getAll("history");
+    const usedMinoHistoryParam = new URLSearchParams(window.location.search).get("usedMinoHistory");
+    if (historyParam != null && usedMinoHistoryParam != null) {
+      if (confirm("現在の操作履歴を破棄し、受け取ったURLのデータに差し替えますか？")) {
+        isLoadedFromQuery.current = true;
+        const history = new Array<string[][]>(historyParam.length);
+        for (let i = 0; i < historyParam.length; i++) {
+          history[i] = JSON.parse(inflateString(historyParam[i]));
+        }
+
+        const usedMinoHistory = JSON.parse(inflateString(usedMinoHistoryParam));
+
+        localStorage.setItem(config.historyStorageKey, JSON.stringify(history));
+        localStorage.setItem(config.usedMinoHistoryStorageKey, JSON.stringify(usedMinoHistory));
+        setHistoryIndexState(history.length - 1);
+      }
+    } else {
+      const historyRaw = localStorage.getItem(config.historyStorageKey);
+      if (historyRaw == null) {
+        initializeHistory();
+      }
+
+      const usedMinoHistoryRaw = localStorage.getItem(config.usedMinoHistoryStorageKey);
+      if (usedMinoHistoryRaw == null) {
+        initializeUsedMinoHistory();
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const historyRaw = localStorage.getItem(config.historyStorageKey);
@@ -76,23 +109,6 @@ export default function Top() {
     setHistoryIndexState: setHistoryIndexState,
   };
 
-  // localStorage の初期化処理
-  useEffect(() => {
-    const history = localStorage.getItem(config.historyStorageKey);
-    if (history != null) {
-      return;
-    } else {
-      initializeHistory();
-    }
-
-    const usedMinoHistory = localStorage.getItem(config.usedMinoHistoryStorageKey);
-    if (usedMinoHistory != null) {
-      return;
-    } else {
-      initializeUsedMinoHistory();
-    }
-  }, []);
-
   // 盤面が変わったとき、ローカルストレージにその盤面を追加して、今履歴のどこにいるかを更新する
   // また、ページが開かれたときに履歴が残っていれば復元するかを確認する
   useEffect(() => {
@@ -103,7 +119,7 @@ export default function Top() {
       const history: string[][][] = JSON.parse(historyRaw);
       const usedMinoHistory: BlockKind[] = JSON.parse(usedMinoHistoryRaw);
 
-      if (history.length > 1 && historyIndexState == undefined) {
+      if (!isLoadedFromQuery.current && history.length > 1 && historyIndexState == undefined) {
         // 履歴がローカルストレージに残っていて、初回のレンダリングのとき
         if (confirm("過去のデータがあります。復元しますか？")) {
           setHistoryIndexState(history.length - 1);
@@ -136,7 +152,7 @@ export default function Top() {
           blockKind: BlockKind.NONE,
           rotation: 0,
         });
-      } else if (historyIndexState == undefined) {
+      } else if (!isLoadedFromQuery.current && historyIndexState == undefined) {
         // 履歴がない状態での初回レンダリング時は、インデックスを初期化する
         setHistoryIndexState(0);
       }
@@ -165,11 +181,43 @@ export default function Top() {
     }
   }, [historyIndexState]);
 
+  // 共有用のURLを生成する
+  const generateShareURL = () => {
+    const historyRaw = localStorage.getItem(config.historyStorageKey);
+    const usedMinoHistoryRaw = localStorage.getItem(config.usedMinoHistoryStorageKey);
+    if (historyRaw == null && usedMinoHistoryRaw == null) {
+      alert("操作履歴がないため、URLを生成できません");
+      return;
+    } else if (historyRaw == null || usedMinoHistoryRaw == null) {
+      alert("操作履歴に不整合があるため、URLを生成できません");
+      return;
+    } else {
+      const history: string[][][] = JSON.parse(historyRaw);
+      let historyQueryParam = "";
+      for (let i = 0; i < history.length; i++) {
+        if (i != 0) {
+          historyQueryParam += "&";
+        }
+        historyQueryParam += `history=${deflateString(JSON.stringify(history[i]))}`;
+      }
+
+      const compressedUsedMinoHistory = deflateString(usedMinoHistoryRaw);
+      const urlBase = window.location.origin;
+      const url = `${urlBase}/?${historyQueryParam}&usedMinoHistory=${compressedUsedMinoHistory}`;
+      window.prompt("URLをコピーしてください", url);
+    }
+  };
+
   return (
     <div className={tetrisArea.top}>
       <HistoryList {...historiesProps} />
       <TetrisTable {...tetrisFieldProps} />
       <Controller {...controllerProps} />
+      <ul>
+        <li>
+          <button onClick={generateShareURL}>共有用URLを生成する</button>
+        </li>
+      </ul>
     </div>
   );
 }
