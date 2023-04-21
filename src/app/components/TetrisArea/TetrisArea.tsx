@@ -204,7 +204,10 @@ export default function Top() {
       const compressedUsedMinoHistory = deflateString(usedMinoHistoryRaw);
       const urlBase = window.location.origin;
       const url = `${urlBase}/?${historyQueryParam}&usedMinoHistory=${compressedUsedMinoHistory}`;
-      window.prompt("URLをコピーしてください", url);
+      window.prompt(
+        "URLをコピーしてください。\n（この機能は試験的なものです。非常に長いURLが生成されます。）",
+        url
+      );
     }
   };
 
