@@ -3,13 +3,16 @@ import { useEffect, useRef, useState } from "react";
 import { ControllerMemo, Controller } from "./Controller/Controller";
 import { TetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
 import { BlockKind, config } from "../../config/config";
-import { convertToHistoryFromTableStyle, convertToTableStyleFromHistory } from "util/converter";
+import {
+  convertNumberToMinoName,
+  convertToHistoryFromTableStyle,
+  convertToTableStyleFromHistory,
+} from "util/converter";
 import { isSameTable as isSameTable } from "util/checker";
 import { initializeHistory, initializeUsedMinoHistory } from "util/history";
 import { generateEmptyTableStyleArray } from "util/generater";
 import { HistoryList } from "./Histories/HistoryList";
 import { deflateString, inflateString } from "util/compress";
-import { useSearchParams } from "next/navigation";
 
 export default function Top() {
   const [masterTableState, setMasterTableState] = useState<any[][]>(generateEmptyTableStyleArray());
@@ -132,16 +135,37 @@ export default function Top() {
         historyIndexState != undefined &&
         !isSameTable(history[historyIndexState], masterTableState)
       ) {
+        if (!isLatestTable.current) {
+          if (
+            confirm(
+              "この先のデータを破棄し、この操作で上書きします。\n この操作は取り消せません。よろしいですか？"
+            )
+          ) {
+          } else {
+            return;
+          }
+        }
         // 初回レンダリングでなく盤面に変更があったとき、履歴に新しい盤面を追加する
         const newHistory = [
           ...history.slice(0, historyIndexState + 1),
           convertToHistoryFromTableStyle(masterTableState),
         ];
-        const newUsedMinoHistory = [...usedMinoHistory, currentMino.blockKind];
         localStorage.setItem(config.historyStorageKey, JSON.stringify(newHistory));
         if (willLineClear.current) {
           willLineClear.current = false;
+          const newUserMinoHistory = [
+            ...usedMinoHistory.slice(0, historyIndexState),
+            BlockKind.NONE,
+          ];
+          localStorage.setItem(
+            config.usedMinoHistoryStorageKey,
+            JSON.stringify(newUserMinoHistory)
+          );
         } else {
+          const newUsedMinoHistory = [
+            ...usedMinoHistory.slice(0, historyIndexState),
+            currentMino.blockKind,
+          ];
           localStorage.setItem(
             config.usedMinoHistoryStorageKey,
             JSON.stringify(newUsedMinoHistory)
@@ -231,6 +255,7 @@ export type ControlMino = {
 };
 
 function generateFixedUsedMinoList(usedMinoList: BlockKind[]): BlockKind[] {
-  const startIdx = ~~(usedMinoList.length / 7);
-  return usedMinoList.slice(startIdx * 7, startIdx * 7 + 7);
+  const skippedList = usedMinoList.filter((mino) => mino != BlockKind.NONE);
+  const startIdx = ~~(skippedList.length / 7);
+  return skippedList.slice(startIdx * 7, startIdx * 7 + 7);
 }
