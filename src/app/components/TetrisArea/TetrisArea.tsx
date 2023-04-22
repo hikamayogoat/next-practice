@@ -3,11 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { ControllerMemo, Controller } from "./Controller/Controller";
 import { TetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
 import { BlockKind, config } from "../../config/config";
-import {
-  convertNumberToMinoName,
-  convertToHistoryFromTableStyle,
-  convertToTableStyleFromHistory,
-} from "util/converter";
+import { convertToHistoryFromTableStyle, convertToTableStyleFromHistory } from "util/converter";
 import { isSameTable as isSameTable } from "util/checker";
 import { initializeHistory, initializeUsedMinoHistory } from "util/history";
 import { generateEmptyTableStyleArray } from "util/generater";

@@ -77,30 +77,38 @@ export function Controller(props: ControllerProps) {
           {blockKindList.map((mino) =>
             props.unavailableMinoList.includes(mino) ? (
               <div key={`${mino}`} className={controllerStyle.item}>
-                {convertNumberToMinoName(mino)}×
+                <img
+                  src={`/${convertNumberToMinoName(mino)}x.png`}
+                  alt=""
+                  className={controllerStyle.boxImage}
+                />
               </div>
             ) : (
               <div key={`${mino}`} className={controllerStyle.item} onClick={onMinoClick(mino)}>
-                {convertNumberToMinoName(mino)}
+                <img
+                  src={`/${convertNumberToMinoName(mino)}.png`}
+                  alt=""
+                  className={controllerStyle.boxImage}
+                />
               </div>
             )
           )}
         </div>
         <div>
           <div className={controllerStyle.item} onClick={onRotateClick(-1)}>
-            左回転
+            <img src={"/left_rotate.png"} alt="" className={controllerStyle.boxImage} />
           </div>
           <div className={controllerStyle.item} onClick={onRotateClick(1)}>
-            右回転
+            <img src={"/right_rotate.png"} alt="" className={controllerStyle.boxImage} />
           </div>
           <div className={controllerStyle.item} onClick={onHistoryControlClick(-1)}>
-            Undo
+            <img src={"/undo.png"} alt="" className={controllerStyle.boxImage} />
           </div>
           <div className={controllerStyle.item} onClick={onHistoryControlClick(1)}>
-            Redo
+            <img src={"/redo.png"} alt="" className={controllerStyle.boxImage} />
           </div>
           <div className={controllerStyle.item} onClick={destroyHistory}>
-            履歴全削除
+            <img src={"/clear.png"} alt="" className={controllerStyle.boxImage} />
           </div>
         </div>
       </div>
