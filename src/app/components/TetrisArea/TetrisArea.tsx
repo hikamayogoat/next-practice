@@ -131,16 +131,6 @@ export default function Top() {
         historyIndexState != undefined &&
         !isSameTable(history[historyIndexState], masterTableState)
       ) {
-        if (!isLatestTable.current) {
-          if (
-            confirm(
-              "この先のデータを破棄し、この操作で上書きします。\n この操作は取り消せません。よろしいですか？"
-            )
-          ) {
-          } else {
-            return;
-          }
-        }
         // 初回レンダリングでなく盤面に変更があったとき、履歴に新しい盤面を追加する
         const newHistory = [
           ...history.slice(0, historyIndexState + 1),

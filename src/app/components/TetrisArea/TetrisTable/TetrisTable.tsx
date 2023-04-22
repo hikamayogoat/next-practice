@@ -79,6 +79,17 @@ export function TetrisTable(props: TetrisTableProps) {
     if (props.currentMino.blockKind == BlockKind.NONE) {
       return;
     }
+    if (!props.isLatestTable) {
+      if (
+        confirm(
+          "この先の操作履歴を消去し、この操作で上書きします。\nこの操作は取り消せません。よろしいですか？"
+        )
+      ) {
+      } else {
+        setEnterPositionState(initPosition);
+        return;
+      }
+    }
     if (
       erasableRowsState.length > 0 &&
       props.isLatestTable &&
