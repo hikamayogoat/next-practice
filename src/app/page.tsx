@@ -1,7 +1,8 @@
 "use client";
 
 import { Inter } from "@next/font/google";
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { ExplainModal } from "./components/Modal/ExplainModal";
 import { Header } from "./components/TetrisArea/Header";
 import Top from "./components/TetrisArea/TetrisArea";
 import styles from "./page.module.css";
@@ -17,6 +18,9 @@ export default function Home() {
       <main className={styles.main}>
         <Top />
       </main>
+      <div className={styles.footer}>
+        <ExplainModal />
+      </div>
     </div>
   );
 }

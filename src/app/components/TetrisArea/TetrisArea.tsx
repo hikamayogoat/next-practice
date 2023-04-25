@@ -1,5 +1,5 @@
-import tetrisArea from "./tetrisArea.module.css";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import tetrisAreaStyle from "./tetrisArea.module.css";
+import { useEffect, useRef, useState } from "react";
 import { ControllerMemo, Controller } from "./Controller/Controller";
 import { TetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
 import { BlockKind, config } from "../../config/config";
@@ -8,7 +8,7 @@ import { isSameTable as isSameTable } from "util/checker";
 import { initializeHistory, initializeUsedMinoHistory } from "util/history";
 import { generateEmptyTableStyleArray } from "util/generater";
 import { HistoryList } from "./Histories/HistoryList";
-import { deflateString, inflateString } from "util/compress";
+import { inflateString } from "util/compress";
 
 export default function Top() {
   const [masterTableState, setMasterTableState] = useState<any[][]>(generateEmptyTableStyleArray());
@@ -193,7 +193,7 @@ export default function Top() {
 
   return (
     <div>
-      <div className={tetrisArea.app}>
+      <div className={tetrisAreaStyle.app}>
         <HistoryList {...historiesProps} />
         <TetrisTable {...tetrisFieldProps} />
         <Controller {...controllerProps} />
