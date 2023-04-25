@@ -1,5 +1,5 @@
 import tetrisArea from "./tetrisArea.module.css";
-import { useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { ControllerMemo, Controller } from "./Controller/Controller";
 import { TetrisTable as TetrisTable } from "./TetrisTable/TetrisTable";
 import { BlockKind, config } from "../../config/config";
@@ -222,15 +222,12 @@ export default function Top() {
   };
 
   return (
-    <div className={tetrisArea.top}>
-      <HistoryList {...historiesProps} />
-      <TetrisTable {...tetrisFieldProps} />
-      <Controller {...controllerProps} />
-      <ul>
-        <li>
-          <button onClick={generateShareURL}>共有用URLを生成する</button>
-        </li>
-      </ul>
+    <div>
+      <div className={tetrisArea.app}>
+        <HistoryList {...historiesProps} />
+        <TetrisTable {...tetrisFieldProps} />
+        <Controller {...controllerProps} />
+      </div>
     </div>
   );
 }

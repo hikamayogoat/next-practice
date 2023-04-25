@@ -239,7 +239,6 @@ export function TetrisTable(props: TetrisTableProps) {
           </div>
         ))}
       </div>
-      <p>Z: 左回転, X: 右回転</p>
       {erasableRowsState.length > 0 && props.isLatestTable ? (
         <button onClick={onClickEraseLine}>ライン消去</button>
       ) : (

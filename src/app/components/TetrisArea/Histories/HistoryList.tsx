@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { convertToTableStyleFromHistory } from "util/converter";
 import { generateEmptyTableStyleArray } from "util/generater";
 import historyListStyle from "./historyList.module.css";
+import { VscChevronLeft, VscChevronRight } from "react-icons/vsc";
 
 export type HistoriesProps = {
   historyIndexState: number | undefined;
@@ -16,6 +17,8 @@ export function HistoryList(props: HistoriesProps) {
     border: "solid 3px",
     borderColor: "red",
   };
+
+  const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
     const historyRaw = localStorage.getItem(config.historyStorageKey);
@@ -37,46 +40,72 @@ export function HistoryList(props: HistoriesProps) {
     props.setHistoryIndexState(nextIdx);
   };
 
-  return (
-    <div className={historyListStyle.sidebar}>
-      <ul>
-        {historyListState.map((history, idx) =>
-          props.historyIndexState != undefined &&
-          props.historyIndexState === historyListState.length - idx - 1 ? ( // 逆順にしているため
-            <div key={idx} className={historyListStyle.table} style={focusedHistoryStyle}>
-              {history.map((row, rowIdx) => (
-                <div key={`${idx}-${rowIdx}`}>
-                  {row.map((cell, cellIdx) => (
-                    <div
-                      key={`${idx}-${rowIdx}-${cellIdx}`}
-                      className={historyListStyle.cell}
-                      style={cell}
-                    ></div>
-                  ))}
-                </div>
-              ))}
-            </div>
+  const toggleHistory = () => {
+    setIsOpen(!isOpen);
+  };
+
+  if (isOpen) {
+    return (
+      <div className={historyListStyle.sidebar}>
+        <div className={historyListStyle.header}>
+          <div className={historyListStyle.header_left}>盤面履歴</div>
+          {isOpen ? (
+            <VscChevronLeft
+              className={historyListStyle.header_right}
+              onClick={toggleHistory}
+            ></VscChevronLeft>
           ) : (
-            <div key={idx} className={historyListStyle.table}>
-              {history.map((row, rowIdx) => (
-                <div
-                  key={`${idx}-${rowIdx}`}
-                  onClick={onClickHistory(historyListState.length - idx - 1)} // 逆順にしているため
-                >
-                  {" "}
-                  {row.map((cell, cellIdx) => (
-                    <div
-                      key={`${idx}-${rowIdx}-${cellIdx}`}
-                      className={historyListStyle.cell}
-                      style={cell}
-                    ></div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          )
-        )}
-      </ul>
-    </div>
-  );
+            <VscChevronRight
+              className={historyListStyle.header_right}
+              onClick={toggleHistory}
+            ></VscChevronRight>
+          )}
+        </div>
+        <ul>
+          {historyListState.map((history, idx) =>
+            props.historyIndexState != undefined &&
+            props.historyIndexState === historyListState.length - idx - 1 ? ( // 逆順にしているため
+              <div key={idx} className={historyListStyle.table} style={focusedHistoryStyle}>
+                {history.map((row, rowIdx) => (
+                  <div key={`${idx}-${rowIdx}`}>
+                    {row.map((cell, cellIdx) => (
+                      <div
+                        key={`${idx}-${rowIdx}-${cellIdx}`}
+                        className={historyListStyle.cell}
+                        style={cell}
+                      ></div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div key={idx} className={historyListStyle.table}>
+                {history.map((row, rowIdx) => (
+                  <div
+                    key={`${idx}-${rowIdx}`}
+                    onClick={onClickHistory(historyListState.length - idx - 1)} // 逆順にしているため
+                  >
+                    {" "}
+                    {row.map((cell, cellIdx) => (
+                      <div
+                        key={`${idx}-${rowIdx}-${cellIdx}`}
+                        className={historyListStyle.cell}
+                        style={cell}
+                      ></div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )
+          )}
+        </ul>
+      </div>
+    );
+  } else {
+    return (
+      <div className={historyListStyle.sidebar_open_button}>
+        <VscChevronRight onClick={toggleHistory}></VscChevronRight>
+      </div>
+    );
+  }
 }
