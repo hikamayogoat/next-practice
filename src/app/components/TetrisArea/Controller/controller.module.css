@@ -1,5 +1,6 @@
 .list {
   display: grid;
+  margin-top: 10%;
   grid-template-columns: max-content max-content;
 }
 
