@@ -11,12 +11,24 @@
 }
 
 .item {
+  display: flex;
   border: solid 1px;
   aspect-ratio: 1;
+  width: 100%;
+  height:100%;
+  background-color: white;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .boxImage {
-  width: 100%;
-  height: 100%;
+  width: 80%;
+  height: 80%;
   display: block;
+}
+
+.boxIcon {
+  width: 80%;
+  height: 80%;
 }

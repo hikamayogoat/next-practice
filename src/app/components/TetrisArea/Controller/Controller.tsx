@@ -6,6 +6,9 @@ import { generateEmptyTableStyleArray } from "util/generater";
 import { initializeHistory, initializeUsedMinoHistory } from "util/history";
 import { ControlMino as MinoStatus } from "../TetrisArea";
 import controllerStyle from "./controller.module.css";
+import { FaRedo, FaUndo } from "react-icons/fa";
+import { FcUndo, FcRedo } from "react-icons/fc";
+import { AiFillDelete } from "react-icons/ai";
 
 export type ControllerProps = {
   setMasterTableState: Dispatch<SetStateAction<any[][]>>;
@@ -96,19 +99,19 @@ export function Controller(props: ControllerProps) {
         </div>
         <div>
           <div className={controllerStyle.item} onClick={onRotateClick(-1)}>
-            <img src={"/left_rotate.png"} alt="" className={controllerStyle.boxImage} />
+            <FaUndo className={controllerStyle.boxIcon}></FaUndo>
           </div>
           <div className={controllerStyle.item} onClick={onRotateClick(1)}>
-            <img src={"/right_rotate.png"} alt="" className={controllerStyle.boxImage} />
+            <FaRedo className={controllerStyle.boxIcon}></FaRedo>
           </div>
           <div className={controllerStyle.item} onClick={onHistoryControlClick(-1)}>
-            <img src={"/undo.png"} alt="" className={controllerStyle.boxImage} />
+            <FcUndo className={controllerStyle.boxIcon}></FcUndo>
           </div>
           <div className={controllerStyle.item} onClick={onHistoryControlClick(1)}>
-            <img src={"/redo.png"} alt="" className={controllerStyle.boxImage} />
+            <FcRedo className={controllerStyle.boxIcon}></FcRedo>
           </div>
           <div className={controllerStyle.item} onClick={destroyHistory}>
-            <img src={"/clear.png"} alt="" className={controllerStyle.boxImage} />
+            <AiFillDelete className={controllerStyle.boxIcon}></AiFillDelete>
           </div>
         </div>
       </div>
